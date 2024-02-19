@@ -6,6 +6,7 @@ Curso de Vue 3: entendendo componentes, diretivas e reatividade no framework
 npx json-server db.json
 npm i 
 npm run serve
+npm run dev
 ```
 
 @01-Entendendo componentes 
@@ -55,7 +56,6 @@ Te esperamos no curso. Vamos começar a aprender!
 
 @@02
 Preparando o ambiente: ferramentas do curso
-PRÓXIMA ATIVIDADE
 
 Link do Figma
 Acesse o design do projeto no Figma.
@@ -183,7 +183,6 @@ Assim, já temos a infraestrutura necessária para começar a codificar, e é is
 
 @@04
 Preparando o ambiente: configurações do Cookin’ Up
-PRÓXIMA ATIVIDADE
 
 O projeto Vue que instalamos traz vários componentes, estilos e arquivos por padrão. A estrutura de pastas e arquivos do projeto vem assim:
 │   .gitignore
@@ -375,7 +374,6 @@ Deixarei os links da documentação em inglês do Vue, mas ela também está dis
 
 @@05
 Preparando o ambiente: CSS do banner
-PRÓXIMA ATIVIDADE
 
 Para o próximo vídeo, utilizaremos o seguinte código CSS:
 .banner {
@@ -656,7 +654,6 @@ Com isso, criamos nosso primeiro componente no Vue e o utilizamos com sucesso. N
 
 @@07
 Para saber mais: Node.js no front-end, pacotes e package.json
-PRÓXIMA ATIVIDADE
 
 Você conferiu que um projeto Vue é feito com o auxílio de diversas ferramentas, algo muito comum quando começamos a trabalhar com frameworks.
 Essas ferramentas precisam realizar operações locais, ou seja, operações dentro do nosso computador, como: leitura e escrita de arquivos, compilações, pré-processamentos de linguagens, criação de servidores, entre outros processos automatizados. Tudo isso é necessário para que a sintaxe do Vue seja transformada em HTML, CSS e JavaScript “puros”, afinal, são apenas essas três linguagens que os navegadores são capazes de entender.
@@ -921,13 +918,11 @@ Dessa forma, exploramos um pouco mais sobre como os componentes funcionam no Vue
 
 @@09
 Para saber mais: recursos CSS do Vue
-PRÓXIMA ATIVIDADE
 
 Você aprendeu sobre o <style scoped>, mas sabia que existem mais recursos do CSS que o Vue disponibiliza? Confira a sessão SFC CSS Features da documentação para ler mais sobre!
 
 @@10
 Vantagens dos componentes
-PRÓXIMA ATIVIDADE
 
 Nesta aula, aprendemos o que são componentes no Vue e como eles podem melhorar nosso desenvolvimento no front-end.
 Digamos que você criou um novo projeto Vue e está com o seguinte código inicial no arquivo App.vue:
@@ -977,7 +972,6 @@ Criar um componente para cada uma dessas partes, chamados Cabecalho.vue, Conteud
 
 @@11
 Faça como eu fiz: criando o Cookin’ Up!
-PRÓXIMA ATIVIDADE
 
 Agora é sua vez de colocar a mão na massa! Está na hora de você criar o projeto do Cookin’ Up utilizando o pacote create-vue. Em seguida, instale as dependências do projeto e abra a aplicação no navegador.
 Depois, você irá criar seu primeiro componente Banner para encapsular código HTML e CSS. Certifique-se de importar esse componente corretamente em App.vue.
@@ -1086,7 +1080,6 @@ Com isso, você criou seu primeiro projeto Vue e o seu primeiro componente!
 
 @@12
 O que aprendemos?
-PRÓXIMA ATIVIDADE
 
 Nessa aula, você aprendeu a:
 Criar um projeto Vue do zero pela linha de comando:
@@ -1099,3 +1092,1139 @@ Cada componente encapsula seu conteúdo (<template>), estilos (<style>) e lógic
 Diferenciar estilos “escopados” de estilos normais:
 Ao utilizar o atributo scoped em uma tag <style>, os estilos se limitam ao escopo do arquivo atual. Isso quer dizer que eles não vão afetar outros componentes, evitando conflitos de código CSS.
 Ainda é possível utilizar tags <style> normais, o que fará com que seus estilos sejam globais.
+
+#### 19/02/2024
+
+@02-Utilizando diretivas
+
+@@01
+Projeto da aula anterior
+
+Caso deseje, você pode baixar o projeto da aula anterior ou visualizar os arquivos no GitHub.
+Bons estudos!
+
+https://github.com/alura-cursos/cookin-up/archive/refs/heads/aula-1.zip
+
+https://github.com/alura-cursos/cookin-up/tree/aula-1
+
+@@02
+Preparando o ambiente: CSS do ConteudoPrincipal
+
+Para o próximo vídeo, utilizaremos o seguinte código CSS:
+
+.conteudo-principal {
+  padding: 6.5rem 7.5rem;
+  border-radius: 3.75rem 3.75rem 0rem 0rem;
+  background: var(--creme, #FFFAF3);
+  color: var(--cinza, #444);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5rem;
+}
+
+.sua-lista-texto {
+  color: var(--coral, #F0633C);
+  display: block;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.ingredientes-sua-lista {
+  display: flex;
+  justify-content: center;
+  gap: 1rem 1.5rem;
+  flex-wrap: wrap;
+}
+
+.ingrediente {
+  display: inline-block;
+  border-radius: 0.5rem;
+  min-width: 4.25rem;
+  padding: 0.5rem;
+  text-align: center;
+    transition: 0.2s;
+    color: var(--creme, #FFFAF3);
+  background: var(--coral, #F0633C);
+  font-weight: 700;
+}
+
+.lista-vazia {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+
+  color: var(--coral, #F0633C);
+  text-align: center;
+}
+
+@media only screen and (max-width: 1300px) {
+  .conteudo-principal {
+    padding: 5rem 3.75rem;
+    gap: 3.5rem;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .conteudo-principal {
+    padding: 4rem 1.5rem;
+    gap: 4rem;
+  }
+}
+
+@@03
+Repetindo itens com v-for
+
+Já implementamos a parte do banner da Cookin'UP, utilizando o Figma. Agora vamos voltar ao VS Code para continuar a codificação da parte "Sua lista".
+Criando o componente ConteudoPrincipal
+Começaremos criando um novo componente chamado ConteudoPrincipal. Este componente engloba toda a seção branca que encontramos no Figma. Posteriormente, iremos organizar também a parte do rodapé para que tudo fique bem estruturado.
+
+Para começar, precisamos abrir o projeto no VS Code. Como havíamos fechado anteriormente, ao abrir novamente, precisamos executar o comando npm run dev para servir a página web no navegador. Para isso, abrimos o terminal integrado no VS Code com o atalho "Ctrl + J" e executamos o comando abaixo:
+
+npm run dev
+COPIAR CÓDIGO
+Precisamos fazer esse passo sempre que quisermos disponibilizar a página. Após a execução do comando, abriremos novamente a aplicação através do link local na máquina. O banner que já tínhamos incluído deve aparecer corretamente.
+
+No próximo passo, vamos criar um componente dentro da pasta "components". Esse componente será chamado ConteudoPrincipal, seguindo a convenção Pascal Case, ou seja, com as iniciais de cada palavra em maiúsculo. Adicionaremos a extensão .vue para indicar que é um componente Vue.js.
+
+Vamos iniciar a codificação deste componente com um bloco <script>, onde exportamos o componente criado. Inserimos também o atributo lang="ts" e fazemos a exportação padrão (export default) de um objeto vazio ({}).
+
+ConteudoPrincipal.vue:
+<script lang="ts">
+export default {}
+</script>
+COPIAR CÓDIGO
+Se salvarmos esse arquivo e retornarmos a App.vue, após <Banner /> na linha 10, podemos abrir a tag <ConteudoPrincipal />. Quando fazemos o export default de um objeto vazio, o VS Code identifica mais facilmente a exportação do componente e ele sugerirá automaticamente a inserção do componente.
+
+App.vue:
+<template>
+  <Banner />
+  <ConteudoPrincipal />
+</template>
+COPIAR CÓDIGO
+Após salvar o arquivo, ao retornar ao arquivo ConteudoPrincipal.vue, podemos abrir a tag <template> e começar a escrever o conteúdo. Para testar se a importação do componente funcionou corretamente, simplesmente colocamos o texto "Conteúdo principal" dentro da tag <template> e salvamos o arquivo.
+
+ConteudoPrincipal.vue:
+<script lang="ts">
+export default {}
+</script>
+
+<template>
+  Conteúdo principal
+</template>
+COPIAR CÓDIGO
+Ao retornar ao navegador, o texto "Conteúdo principal" já aparece na tela, confirmando que a importação foi bem-sucedida. Agora, vamos trabalhar na implementação correta do HTML para esse componente.
+
+Começaremos com uma tag <main> com a classe: conteudo-principal. Dentro dessa tag <main>, temos uma <section> que representará a parte da lista de ingredientes selecionados pela pessoa usuária.
+
+Na tag <section>, criaremos um elemento <span> com as classes subtitulo-lg e sua-lista-texto. Este <span> terá o texto "Sua Lista:". Logo abaixo da <span>, criaremos uma <ul> com a classe ingredientes-sua-lista.
+
+Esse elemento <ul> representa a lista não-ordenada de ingredientes selecionados pela pessoa usuária, como demonstrado no Figma. Cada <li> dentro dessa <ul> representa um ingrediente.
+
+Inicialmente, vamos codificar essa parte de forma estática, ou seja, sem adicionar ou remover ingredientes dinamicamente. Faremos essa parte posteriormente, mas nessa etapa, já conheceremos algumas funcionalidades interessantes do Vue.
+Agora, vamos codificar o primeiro elemento <li> da lista, que terá a classe ingrediente e conterá o texto "Alho". Para incluir os outros ingredientes, faremos a cópia dessa estrutura de <li> e alteraremos o texto para "Manteiga" e "Orégano".
+
+<!-- código omitido -->
+
+<template>
+  <main class="conteudo-principal">
+    <section>
+      <span class="subtitulo-lg sua-lista-texto">
+        Sua lista:
+      </span>
+
+      <ul class="ingredientes-sua-lista">
+        <li class="ingrediente">
+          Alho
+        </li>
+        <li class="ingrediente">
+          Manteiga
+        </li>
+        <li class="ingrediente">
+          Orégano
+        </li>
+      </ul>
+    </section>
+  </main>
+</template>
+COPIAR CÓDIGO
+Ao salvar o arquivo e abrir no navegador, o conteúdo já estará visível, porém, sem a formatação correta de uma lista. Vamos adicionar os estilos necessários ao nosso projeto. É fácil encontrar esses estilos, porque já os colocamos em um guia de consulta, que está disponível para você em uma atividade.
+
+Copiaremos os estilos, retornaremos ao VS Code, e adicionaremos uma tag <style> após </template>, contendo o atributo scoped. Dentro dessa tag, colaremos os estilos utilizando o atalho "Ctrl + V".
+
+<style scoped>
+.conteudo-principal {
+  padding: 6.5rem 7.5rem;
+  border-radius: 3.75rem 3.75rem 0rem 0rem;
+  background: var(--creme, #FFFAF3);
+  color: var(--cinza, #444);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5rem;
+}
+
+.sua-lista-texto {
+  color: var(--coral, #F0633C);
+  display: block;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.ingredientes-sua-lista {
+  display: flex;
+  justify-content: center;
+  gap: 1rem 1.5rem;
+  flex-wrap: wrap;
+}
+
+.ingrediente {
+  display: inline-block;
+  border-radius: 0.5rem;
+  min-width: 4.25rem;
+  padding: 0.5rem;
+  text-align: center;
+    transition: 0.2s;
+    color: var(--creme, #FFFAF3);
+  background: var(--coral, #F0633C);
+  font-weight: 700;
+}
+
+.lista-vazia {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+
+  color: var(--coral, #F0633C);
+  text-align: center;
+}
+
+@media only screen and (max-width: 1300px) {
+  .conteudo-principal {
+    padding: 5rem 3.75rem;
+    gap: 3.5rem;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .conteudo-principal {
+    padding: 4rem 1.5rem;
+    gap: 4rem;
+  }
+}
+</style>
+COPIAR CÓDIGO
+Em seguida, salvaremos novamente o arquivo e, ao retornar para o navegador, já é possível verificar a lista com os três ingredientes, alho, manteiga e orégano, de forma organizada e bonita.
+
+O problema é que, ao analisar o código que nós escrevemos, percebemos que houve uma repetição na parte das tags <li>. Essa repetição de código no HTML pode se tornar um problema, especialmente quando pensamos na manutenção do código.
+
+Por exemplo, se quisermos alterar a estrutura de um ingrediente, que sempre está em uma tag <li> com a classe ingrediente, teríamos um trabalho a mais. Apesar de ser uma estrutura simples, existem muitas outras situações onde teríamos bastante repetição de código HTML. O ideal seria ter um único local com um modelo dessa estrutura. Assim, no dia que precisarmos alterar essa estrutura, alteraríamos em apenas um local.
+
+Felizmente, o Vue fornece um recurso bastante útil para evitar essa repetição de código HTML. Evidentemente, ele usará JavaScript nos bastidores, porém, de uma forma facilitada. Se você quisesse evitar essa repetição com JavaScript puro, também conseguiria, embora manualmente ficasse um pouco trabalhoso.
+
+Repetindo itens com v-for
+O recurso do Vue que mostraremos agora funciona da seguinte forma: vamos apagar a segunda e a terceira tags <li>, e na primeira tag <li>, vamos escrever como se fosse um atributo chamado v-for.
+
+O VS Code até oferece uma sugestão para este comando; ele adiciona um igual e abre aspas de abertura e fechamento.
+O v-for segue a mesma sintaxe de um atributo do HTML, porém, este atributo é especial e nós chamamos de diretiva. Uma diretiva do Vue é basicamente um atributo que sempre começa com v-. Entre as aspas, podemos utilizar uma sintaxe especial; vamos escrever ingrediente in ['Alho', 'Manteiga', 'Orégano']. São os mesmos itens que já tínhamos antes.
+
+<li v-for="ingrediente in ['Alho', 'Manteiga', 'Orégano']" class="ingrediente">
+  Alho
+</li>
+COPIAR CÓDIGO
+Vamos verificar o que esse v-for vai fazer? Após salvar o arquivo e voltar ao navegador, agora temos três ingredientes, porém, todos são chamados "Alho".
+
+Isso é interessante, porque ao retornar para o código, percebemos que o v-for é como o for do JavaScript: ele vai repetir a tag <li> onde foi aplicado o v-for, e imprimir "Alho" três vezes, reutilizando a mesma estrutura do HTML. Assim, nós já eliminamos o problema de repetição de código.
+
+Porém, ainda não conseguimos personalizar o texto apresentado. É para isso que serve a variável chamada ingrediente que escrevemos antes de in. Nós podemos utilizar essa variável que o Vue permite criar dentro de <template>.
+
+Sendo assim, em vez de escrever "Alho", podemos utilizar uma variável do JavaScript. Para isso, existe outra sintaxe fornecida pelo Vue, que são as chaves. São duas chaves de abertura e duas chaves de fechamento ({{ }}). Dentro dessas chaves, conseguimos obter a variável do JavaScript, que é ingrediente.
+
+<li v-for="ingrediente in ['Alho', 'Manteiga', 'Orégano']" class="ingrediente">
+  {{ ingrediente }}
+</li>
+COPIAR CÓDIGO
+Ao salvar o arquivo novamente e retornar ao navegador, é possível verificar que funcionou corretamente. Aparece "Alho", "Manteiga" e "Orégano", perfeitamente organizados na lista.
+
+Vamos modificar um detalhe no código. Ao voltarmos para o VS Code, percebemos que não é muito comum colocar uma lista diretamente no v-for, principalmente uma lista literal. Idealmente, as informações devem estar mais estruturadas e organizadas. Portanto, existe uma maneira de enviar essa lista para o JavaScript na tag <script>.
+
+O procedimento é o seguinte: recortamos a lista com "Ctrl + X", e podemos prever o nome da lista, que vamos chamar de ingredientes. Esta lista ainda não existe, por isso ficará sublinhada em vermelho.
+
+<li v-for="ingrediente in ingredientes" class="ingrediente">
+  {{ ingrediente }}
+</li>
+COPIAR CÓDIGO
+Agora, vamos criar a lista na tag <script>. No entanto, saiba que no Vue, não podemos simplesmente escrever const ingredientes e atribuir a lista diretamente para o template do componente. Nós precisamos de alguns passos a mais.
+
+Para realmente disponibilizar uma informação do JavaScript para o Vue, nós vamos entrar no export default e adicionar uma propriedade chamada data(). Ela é uma função, então abrimos parênteses e chaves e, entre chaves, retornamos um objeto.
+
+Este objeto terá uma propriedade chamada ingredientes, cujo valor será a lista que copiamos anteriormente.
+
+<script lang="ts">
+export default {
+    data() {
+        return {
+            ingredientes: ['Alho', 'Manteiga', 'Orégano']
+        };
+    },
+}
+</script>
+
+<!-- código omitido -->
+COPIAR CÓDIGO
+Feito isso, o sublinhado vermelho desaparece do código. Ao salvar o arquivo e retornar ao navegador, vemos que todos os ingredientes aparecem conforme esperado.
+
+Conclusão
+Assim, aprendemos três coisas novas:
+
+Como realizar uma iteração HTML com v-for;
+A sintaxe de interpolação, que são as duplas chaves ({{ }});
+E o uso de data para disponibilizar informações do JavaScript para serem utilizadas no template do componente.
+Essa opção de data é capaz de fazer mais coisas, mas vamos aprender mais sobre isso futuramente no curso.
+
+No próximo vídeo, vamos aplicar uma boa prática quando usamos v-for para renderizar listas no Vue. Esperamos você lá!
+
+@@04
+Vinculando dados com v-bind
+
+Nós conseguimos renderizar de forma dinâmica uma lista de ingredientes no nosso projeto com sucesso. Colocando o código em prática, realizamos isso com a diretiva v-for, uma citação especial que nos permite fazer uma iteração, ou um loop, em código HTML. Porém, o Vue recomenda uma boa prática para não haver erros na hora de renderizar o conteúdo desta lista.
+Vinculando dados com v-bind
+Essa prática consiste em adicionar um atributo especial fornecido pelo Vue, chamado key (chave, em inglês), após o v-for. Este atributo requer um identificador único, que servirá para cada item da lista de ingredientes.
+
+Isso ajuda a renderizar os itens da lista de ingredientes da maneira mais eficaz possível, especialmente em situações onde utilizaremos recursos mais avançados. Embora não estejamos enfrentando problemas de renderização agora, é essencial começar a implementar essa prática para evitar esquecimentos futuros quando utilizarmos v-for novamente.
+
+Você pode se perguntar: "O que passar como identificador único?". O Vue sugere sempre adicionar um valor primitivo do JavaScript (como uma string ou um número). No caso do ingrediente, nós podemos passar o próprio valor do ingrediente, porque é uma string e o número do ingrediente será único para cada um deles.
+
+No entanto, nos deparamos com outro problema: como escrever a variável ingrediente dentro do atributo key? Não conseguimos usar a sintaxe de chaves duplas, por exemplo, porque ela serve apenas para o conteúdo de tags HTML. Nos atributos HTML, para capturar informações do JavaScript, a sintaxe é um pouco diferente.
+
+Para resolver isso, antes do key, vamos escrever outra diretiva chamada v-bind:, que permitirá a escrita de código JavaScript entre as aspas. Então, escreveremos a variável ingrediente em seguida.
+
+ConteudoPrincipal.vue:
+<li v-for="ingrediente in ingredientes" v-bind:key="ingrediente" class="ingrediente">
+  {{ ingrediente }}
+</li>
+COPIAR CÓDIGO
+Ao salvar esse arquivo e voltar ao navegador, veremos que tudo continua funcionando da mesma forma. Essa é, definitivamente, a melhor prática para renderizar listas utilizando v-for no Vue.
+
+Contudo, a situação de pegar um valor do JavaScript nos atributos do HTML é tão comum que o Vue fornece um atalho para essa sintaxe. Portanto, em vez de escrever v-bind: toda vez que quisermos fazer isso, podemos apagar o v-bind e manter apenas os dois pontos (:) antecedendo o nome do atributo.
+
+<li v-for="ingrediente in ingredientes" :key="ingrediente" class="ingrediente">
+  {{ ingrediente }}
+</li>
+COPIAR CÓDIGO
+Após salvar o arquivo e voltar ao navegador, continua funcionando normalmente.
+
+Mesmo removendo o v-bind, podemos manter o termo em mente quando enxergamos os dois pontos. Portanto, ao mencionar v-bind no futuro, estaremos nos referindo a essa diretiva.
+Conclusão
+Dessa forma, mantivemos as boas práticas de renderização de listas com v-for. No próximo vídeo, faremos a finalização da lista de ingredientes, tratando o caso quando ela estiver vazia. Esperamos você por lá!
+
+@@05
+Renderizando condicionalmente
+
+Nós já implementamos uma boa prática para renderizar listas no Vue, utilizando o atributo especial key. No entanto, há outra situação que precisamos resolver para finalizar esta parte relacionada às listas.
+Renderizando condicionalmente
+Analisando o Figma, há uma situação que ocorre quando a lista está vazia. Se olharmos na parte direita do Figma, temos uma demonstração dessa situação: quando a lista está vazia, exibimos uma imagem de uma lupa e a frase "Sua lista está vazia, selecione ingredientes para iniciar". Agora, vamos implementar isso no código.
+
+Retornando ao VS Code, a maneira de fazer isso será com outra diretiva do Vue.
+
+Na estrutura de lista <ul>, usaremos uma diretiva chamada v-if que segue uma sintaxe específica: v-if="{condição}". Dentro dessas chaves, podemos colocar uma condição do JavaScript que, se avaliada como verdadeira, renderiza essa lista. Já se for avaliada como falsa, o Vue não vai exibir a lista na tela. Vamos verificar se funciona?
+
+Para a condição, precisamos levar em conta que a lista não deve estar vazia. Portanto, vamos escrever a condição da seguinte maneira: ingredientes.length. Temos acesso à variável ingredientes, que está disponível no código JavaScript. Se o tamanho da lista for diferente de zero, o valor será avaliado como verdadeiro para o v-if e a lista será renderizada.
+
+ConteudoPrincipal.vue:
+<ul v-if="ingredientes.length" class="ingredientes-sua-lista">
+  <li v-for="ingrediente in ingredientes" :key="ingrediente" class="ingrediente">
+    {{ ingrediente }}
+  </li>
+</ul>
+COPIAR CÓDIGO
+Ao salvar o arquivo e retornar ao navegador, a lista continua aparecendo, pois ela não está vazia. Porém, se removermos todos os itens da lista ingredientes na linha 5 e salvarmos o arquivo novamente, a lista desaparece, porque está vazia.
+
+Se olharmos o DevTools e inspecionarmos a parte da lista, veremos que a estrutura <ul> também sumiu, já que aplicamos o v-if a esta estrutura.
+Isso já é um avanço, mas para atender ao design do Figma, precisamos mostrar a pequena imagem e o texto que indica que a lista está vazia, caso ela realmente esteja. Para isso, vamos retornar ao VS Code e usar outra diretiva que complementa o v-if.
+
+Depois da estrutura da lista, exibiremos a estrutura que corresponde ao que foi descrito no Figma: um parágrafo (<p<) com as classes paragrafo e lista-vazia. Estas classes já foram previamente definidas na parte do <style scoped>.
+
+Dentro do parágrafo, vamos inserir uma imagem (<img>) com o seguinte caminho (src): "../assets/imagens/icones/lista-vazia.svg". No atributo alt, adicionamos a descrição "Ícone de pesquisa".
+
+Após a imagem, inserimos o texto que podemos copiar diretamente do Figma para economizar tempo.
+
+<p class="paragrafo lista-vazia">
+  <img src="../assets/imagens/icones/lista-vazia.svg" alt="Ícone de pesquisa">
+  Sua lista está vazia, selecione ingredientes para iniciar.
+</p>
+</section>
+COPIAR CÓDIGO
+Feito isso, salvamos o arquivo e voltamos para o navegador. A imagem e o texto que desejamos exibir já aparecem.
+
+No entanto, se retornarmos a lista de ingredientes para o estado anterior, precisamos garantir que a lista de ingredientes aparece, sem mostrar a frase de lista vazia. Para isso, precisamos definir a condição para exibir a frase de lista vazia.
+
+Retornando ao VS Code, vamos inserir a diretiva v-else na tag <p>. Essa diretiva que inserimos no parágrafo deve ser posicionada em um elemento que está imediatamente após um elemento que possua um v-if. Se a estrutura não for essa, não funcionará corretamente. Então, teoricamente, da forma que fizemos abaixo, deve funcionar.
+
+<p v-else class="paragrafo lista-vazia">
+  <img src="../assets/imagens/icones/lista-vazia.svg" alt="Ícone de pesquisa">
+  Sua lista está vazia, selecione ingredientes para iniciar.
+</p>
+</section>
+COPIAR CÓDIGO
+Ao salvar o arquivo e voltar ao navegador, o parágrafo deverá ter desaparecido.
+
+Conclusão
+Com isso, concluímos a parte da lista, com todos os detalhes que precisamos tratar. No próximo vídeo, começaremos a codificar a parte de seleção de ingredientes, que podemos conferir no Figma. Esperamos você por lá!
+
+@@06
+Preparando o ambiente: lista de categorias e CSS do SelecionarIngredientes
+
+Para o próximo vídeo, utilizaremos o seguinte código CSS:
+.selecionar-ingredientes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.titulo-ingredientes {
+  color: var(--verde-medio, #3D6D4A);
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+.instrucoes {
+  margin-bottom: 2rem;
+}
+
+.categorias {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.dica {
+  align-self: flex-start;
+  margin-bottom: 3.5rem;
+}
+
+@media only screen and (max-width: 767px) {
+  .dica {
+    margin-bottom: 2.5rem;
+  }
+}
+COPIAR CÓDIGO
+Também usaremos a seguinte lista de objetos no JS:
+
+[
+  {
+    "nome": "Laticínios e Ovos",
+    "ingredientes": ["Ovos", "Queijo", "Leite", "Manteiga", "Creme de Leite", "Iogurte", "Leite Condensado", "Sorvete"],
+    "rotulo": "laticinios_e_ovos"
+  },
+  {
+    "nome": "Farinhas e Fermentos",
+    "ingredientes": ["Farinha de trigo", "Polvilho", "Farinha de rosca", "Canjica", "Farinha de mandioca", "Fubá", "Linhaça", "Fermento químico"],
+    "rotulo": "farinhas_e_fermentos"
+  }
+]
+
+@@07
+Importando dados
+
+Finalizamos a codificação da lista de ingredientes de acordo com o Figma, e o próximo passo é programar a parte de seleção de ingredientes, que inicia com o título "Ingredientes". Vamos ao VS Code para fazer isso?
+Importando dados
+Vamos abrir o arquivo ConteudoPrincipal.vue, pois ainda faz parte dessa seção no Figma. No código, dentro da tag <template>, temos uma <main> que contém uma <section>. Essa <section> é a parte da lista que já codificamos, e poderíamos, por exemplo, criar um componente para isso. Porém, vamos deixar essa parte um pouco para depois, pois envolverá alguns conceitos que ainda vamos aprender. Por enquanto, vamos deixar o HTML direto em ConteudoPrincipal.vue.
+
+Criando o componente SelecionarIngredientes
+Abaixo de </section>, vamos programar a parte de seleção de ingredientes. Criaremos um novo componente na pasta "components", com o nome SelecionarIngredientes.vue. Dentro desse arquivo, vamos escrever um <script> com o atributo lang = ts, e exportar o padrão (export default) para facilitar o uso do autocomplete ao chamar esse componente.
+
+SelecionarIngredientes.vue:
+<script lang="ts">
+export default {}
+</script>
+COPIAR CÓDIGO
+Após salvar esse arquivo, voltamos para o arquivo ConteudoPrincipal.vue, onde vamos chamar <SelecionarIngredientes />. Se olharmos na parte superior, o VS Code terá importado automaticamente para nós o componente SelecionarIngredientes e colocado ele em components. Essa é uma funcionalidade do VS Code que facilita nosso trabalho.
+
+ConteudoPrincipal.vue:
+    <!-- código omitido -->
+
+    <SelecionarIngredientes />
+  </main>
+</template>
+COPIAR CÓDIGO
+<script lang="ts">
+import SelecionarIngredientes from './SelecionarIngredientes.vue';
+
+export default {
+    data() {
+        return {
+            ingredientes: ['Alho', 'Manteiga', 'Orégano']
+        };
+    },
+    components: { SelecionarIngredientes }
+}
+</script>
+COPIAR CÓDIGO
+Uma vez salvo este arquivo, voltamos para o arquivo SelecionarIngredientes.vue e começamos a escrever o <template>. Novamente, faremos apenas um teste para verificar se está tudo certo.
+
+SelecionarIngredientes.vue:
+<!-- código omitido -->
+
+<template>
+  Selecionar...
+</template>
+COPIAR CÓDIGO
+Ao salvar o arquivo e abrir o navegador para verificar, já aparece o texto "Selecionar…".
+
+Agora vamos codificar de fato. De volta ao VS Code, vamos apagar o texto "Selecionar…" e adicionar uma <section> com a classe selecionar-ingredientes. Dentro dela, colocaremos uma tag <h1> com as classes cabecalho e titulo-ingredientes, cujo texto será "Ingredientes", o mesmo que mostramos no Figma.
+
+Depois do <h1>, inserimos um parágrafo (<p>) com a classe paragrafo-lg e outra classe chamada instrucoes. No Figma, copiaremos o texto "Selecione abaixo os ingredientes que você quer usar nesta receita:" e colaremos dentro de <p>.
+
+<template>
+  <section class="selecionar-ingredientes">
+    <h1 class="cabecalho titulo-ingredientes">Ingredientes</h1>
+
+    <p class="paragrafo-lg instrucoes">
+      Selecione abaixo os ingredientes que você quer usar nesta receita:
+    </p>
+  </section>
+</template>
+COPIAR CÓDIGO
+Após o parágrafo, adicionamos uma <ul> de classe categorias, que será a lista que mostrará todas os cartões de categorias. Por enquanto, vamos deixá-la vazia, e em breve iremos completá-la.
+
+Após a <ul>, vamos adicionar um novo <p> com a classe paragrafo e outra classe chamada dicas. No Figma, copiamos o conteúdo do parágrafo ("*Atenção: consideramos que você tem em casa sal, pimenta e água.") e colamos no HTML.
+
+<template>
+  <section class="selecionar-ingredientes">
+    <h1 class="cabecalho titulo-ingredientes">Ingredientes</h1>
+
+    <p class="paragrafo-lg instrucoes">
+      Selecione abaixo os ingredientes que você quer usar nesta receita:
+    </p>
+
+    <ul class="categorias">
+
+    </ul>
+
+    <p class="paragrafo dica">
+      *Atenção: consideramos que você tem em casa sal, pimenta e água.
+    </p>
+  </section>
+</template>
+COPIAR CÓDIGO
+Feito isso, podemos salvar o arquivo e ir ao navegador para visualizar o resultado. O conteúdo do projeto já aparece corretamente, porém, faltam os estilos, que serão copiados da cola e que também estão disponíveis para você em uma atividade. Então, copiamos o CSS, voltamos para o VS Code, e colamos abaixo de </template>.
+
+<style scoped>
+.selecionar-ingredientes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.titulo-ingredientes {
+  color: var(--verde-medio, #3D6D4A);
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+.instrucoes {
+  margin-bottom: 2rem;
+}
+
+.categorias {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.dica {
+  align-self: flex-start;
+  margin-bottom: 3.5rem;
+}
+
+@media only screen and (max-width: 767px) {
+  .dica {
+    margin-bottom: 2.5rem;
+  }
+}
+</style>
+COPIAR CÓDIGO
+Conferindo no navegador, já está tudo certo. Falta apenas a parte dos cartões de ingredientes.
+
+Vamos retornar ao VS Code, e na seção de elementos <ul> de categorias que está vazia, queremos fazer mais uma vez um loop, um v-for, para que cada uma das categorias seja exibida utilizando um elemento <li>. Portanto, escreveremos <li> contendo o v-for em que precisamos fazer um loop sobre uma lista que disponibiliza todas as informações das categorias.
+
+Idealmente, analisando o template no Figma, é necessário ter uma lista de objetos e cada objeto terá as informações das categorias, como título, ingredientes que ela possui e até mesmo o nome das categorias. Por enquanto, vamos apenas escrever a forma final do v-for, mas nós ainda veremos como obter essa fonte de dados referente às categorias.
+
+Portanto, no v-for vamos escrever categoria in categorias, e vamos aproveitar para adicionar também uma chave usando :key, que é um identificador único. Podemos colocar, por exemplo, categoria.nome, presumindo que categoria será um objeto. Vale lembrar que ainda vamos implementar a lista chamada categorias.
+
+<ul class="categorias">
+  <li v-for="categoria in categorias" :key="categoria.nome">
+    
+  </li>
+</ul>
+COPIAR CÓDIGO
+Em busca de organização do código, vamos disponibilizar a lista no <script> em export default. Portanto, mais uma vez, escreveremos a função data(), e dentro desta função, retornamos um objeto que terá uma propriedade chamada categorias.
+
+<script lang="ts">
+export default {
+  data() {
+    return {
+      categorias: []
+    }
+  }
+}
+</script>
+COPIAR CÓDIGO
+Conforme dito anteriormente, precisamos de uma lista de objetos com as informações das categorias. Para deixar nosso projeto ainda mais organizado, vamos manter em um arquivo separado essa obtenção de dados.
+
+Isso é bom porque dividimos mais as responsabilidades, e se um dia quisermos fazer a obtenção de uma URL, por exemplo, ou de uma API, será mais fácil fazer manutenção desse código.
+
+Por enquanto, vamos deixar uma lista vazia ([]) na propriedade categorias, mas já vamos criar uma pasta dentro de "src". Esta pasta será chamada "http", pois futuramente faremos uma requisição HTTP, e criaremos nessa pasta o arquivo index.ts.
+
+Criando o arquivo index.ts
+Neste arquivo, vamos exportar uma função chamada obterCategorias(), que retornará uma lista de objetos.
+
+index.ts:
+export function obterCategorias() {
+  return [
+    {
+      "nome": "Laticínios e Ovos",
+      "ingredientes": ["Ovos", "Queijo", "Leite", "Manteiga", "Creme de Leite", "Iogurte", "Leite Condensado", "Sorvete"],
+      "rotulo": "laticinios_e_ovos"
+    },
+    {
+      "nome": "Farinhas e Fermentos",
+      "ingredientes": ["Farinha de trigo", "Polvilho", "Farinha de rosca", "Canjica", "Farinha de mandioca", "Fubá", "Linhaça", "Fermento químico"],
+      "rotulo": "farinhas_e_fermentos"
+    }
+  ]
+}
+COPIAR CÓDIGO
+Esta é uma lista de objetos em que cada um possui três propriedades. A primeira se chama nome, que será o nome da categoria, por exemplo, "Laticínios e Ovos". A segunda propriedade se chama ingredientes, cujo valor é uma lista de strings que são os ingredientes que pertencem àquela categoria.
+
+Por fim, temos a terceira propriedade chamada rótulo, que neste primeiro caso, será "laticinios_e_ovos". É apenas um nome padronizado que usaremos para referenciar a imagem que corresponde à categoria. Por enquanto, temos apenas duas categorias de exemplo, mas já será suficiente para testarmos nosso código e posteriormente aprimorá-lo.
+
+Feito isso, salvamos o arquivo e retornamos para SelecionarIngredientes.vue. Agora, em vez de passar uma lista vazia na propriedade categorias, vamos escrever obterCategorias().
+
+Em seguida, vamos importar obterCategorias manualmente no início do <script>. Para isso, escrevemos import, abrimos e fechamos chaves contendo obterCategorias, e depois escrevemos from ''.
+
+Vamos usar um atalho interessante que podemos aplicar nos import do Vue: o @/http/index. Essa arroba faz referência à pasta "src". Assim, a partir dela, conseguimos navegar até "http" e até "index". Isso é feito pelo Vite, servidor que consegue resolver esses caminhos e essas importações, sendo uma ferramenta que o Vue utiliza.
+
+SelecionarIngredientes.vue:
+<script lang="ts">
+import { obterCategorias } from '@/http/index';
+
+export default {
+  data() {
+    return {
+      categorias: obterCategorias()
+    }
+  }
+}
+</script>
+COPIAR CÓDIGO
+Nesse momento, pode ser que apareça um erro na importação, mas vamos resolver isso em breve.
+Após salvar este arquivo e ir para o navegador, não visualizaremos nada novo ainda, porque não foi requisitado que nada fosse exibido. Se voltarmos para o VS Code, devemos colocar código na tag <li>, mas por enquanto ela está vazia.
+
+Então, precisamos colocar a sintaxe de interpolação com duas chaves ({{ }}), e em seguida vamos inserir categoria.nome, referindo-se à propriedade que vimos no index.ts.
+
+<ul class="categorias">
+  <li v-for="categoria in categorias" :key="categoria.nome">
+    {{ categoria.nome }}
+  </li>
+</ul>
+COPIAR CÓDIGO
+Salvando esse arquivo e retornando ao navegador, já podemos visualizar o nome das duas categorias que definimos no arquivo index.ts. Agora, vamos voltar ao VS Code para resolver o erro de importação que o TypeScript aponta.
+
+Embora funcione no navegador, o erro ainda aparece no VS Code. Ele ocorre porque o TypeScript não reconheceu a importação que fizemos, pois precisamos adicionar uma configuração no arquivo tsconfig.app.json, que está na raiz do projeto.
+
+Vamos abrir esse arquivo e, na linha 3, onde temos uma lista para a propriedade include, vamos adicionar um novo item que seguirá um padrão muito parecido com os outros itens já presentes na lista. Vamos inserir src/**/*.ts, para fazer com que o TypeScript reconheça os arquivos que estão neste padrão de caminho.
+
+tsconfig.app.json:
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/**/*.ts"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+COPIAR CÓDIGO
+Após salvar o arquivo e voltar para SelecionarIngredientes.vue, basta recarregar o VS Code para desaparecer o erro. Para isso, vamos usar o atalho "Ctrl + Shift + P", escrever "reload" e selecionar a opção "Reload Window" ("Recarregar a Janela"). Após esperar um pouco, o erro deverá desaparecer.
+
+Conclusão
+Com essa etapa concluída, já conseguimos separar a lógica de obtenção das categorias, o que facilitará a manutenção do código. No próximo vídeo, nós vamos evoluir essa lógica de obtenção, pegando de uma URL de verdade e fazendo uma requisição HTTP. Te esperamos lá!
+
+@@08
+Preparando o ambiente: link das categorias
+
+Usaremos no próximo vídeo a seguinte URL para obter um JSON de categorias:
+https://gist.githubusercontent.com/antonio-evaldo/002ad55e1cf01ef3fc6ee4feb9152964/raw/bf463b47860043da3b3604ca60cffc3ad1ba9865/categorias.json
+
+@@09
+Re-renderizando a tela com estado
+
+Nós já conseguimos exibir as informações de apenas duas categorias de forma estática em nosso projeto, que por enquanto são as categorias de "Laticínios e Ovos" e "Farinhas e Fermentos". Mas o que realmente precisamos é obter informações de várias das categorias que estão no Figma.
+Ao observarmos o template, temos, na verdade, 12 categorias, e já deixamos um JSON preparado em um arquivo na web. Neste arquivo, temos a mesma estrutura: uma lista de objetos que representa as categorias. Porém, agora estão todas as informações que precisamos para exibir do Figma.
+
+Entenderemos como lidar com isso no Vue, como consultar um link da web usando uma requisição HTTP. Essa é uma situação muito comum no mercado, pois sempre lidamos com consultas e interação com APIs, por exemplo.
+
+Re-renderizando a tela com estado
+Vamos começar a inserir o código no VS Code. No arquivo SelecionarIngredientes.vue, temos uma propriedade chamada categorias que chama a função obterCategorias() do arquivo index.ts, que deixamos na pasta "http". No arquivo index.ts, vamos mudar a lógica dessa função que atualmente retorna uma lista estática, a qual vamos apagar.
+
+Antes do return, vamos escrever a lógica para realmente fazer uma requisição HTTP.
+
+index.ts:
+export async function obterCategorias() {
+  const resposta = await fetch('https://gist.githubusercontent.com/antonio-evaldo/002ad55e1cf01ef3fc6ee4feb9152964/raw/07e853b7d0626db51ce2e84bb2f15ca450b7bd7f/categorias.json');
+
+  const categorias = await resposta.json();
+
+  return categorias;
+}
+COPIAR CÓDIGO
+Neste código, const resposta recebe um await fetch(), para usar a Fetch API do JavaScript. Para poder utilizar o await, a função precisa ser assíncrona. Então, escrevemos async antes de function. Em fetch(), inserimos como string a URL que já mostramos no navegador. Assim, por padrão, faremos uma requisição GET para essa URL.
+
+Com a resposta em mãos, escrevemos const categorias recebendo await resposta.json(). Isso também é assíncrono, então precisamos colocar await antes de resposta.json(). Finalmente, retornamos categorias.
+
+Feito isso, salvamos o arquivo. Porém, como a função é assíncrona, ocorre um erro em SelecionarIngredientes.vue. Surge um problema ao acessar categoria.nome na tag <li>, justamente porque a função obterCategorias(), agora sendo assíncrona, precisa aguardar a execução do código.
+
+A forma indicada de fazer isso no Vue não é dentro de data(). Existe um método mais adequado para realizar essa operação assíncrona, que trará benefícios até para lidar com os diferentes estados em que a propriedade categorias pode estar. Afinal, ela pode ficar vazia em um primeiro momento, sendo uma lista vazia, e só depois de um tempo, o que pode levar, por exemplo, alguns segundos, vamos obter as informações que queremos da URL.
+
+Para fazer isso, vamos apagar obterCategorias() da linha 7, deixar um estado inicial de lista vazia ([]) para a propriedade categorias, e adicionar uma nova propriedade nesse objeto de export default chamada created().
+
+created() é uma função, então abrimos e fechamos parênteses e chaves. O código será executado apenas após algumas configurações desse componente serem definidas. Como, por exemplo, as próprias propriedades disponibilizadas no data.
+
+Esse created() é o que chamamos de método de ciclo de vida. O Vue tem vários desses métodos que são executados em diferentes momentos. Alguns deles são executados só depois que o componente é renderizado na tela. O created() é executado depois que as propriedades de data já tiverem sido definidas. Assim, temos acesso à propriedade categorias.
+
+Para isso, faremos uma atribuição. Vamos escrever que this.categorias recebe await obterCategorias(). Note que ainda não podemos usar o await, mas podemos definir que created() é uma função assíncrona.
+
+SelecionarIngredientes.vue:
+export default {
+  data() {
+    return {
+      categorias: []
+    }
+  },
+  async created() {
+    this.categorias = await obterCategorias();
+  }
+}
+COPIAR CÓDIGO
+Recapitulando: a lista de categorias vai iniciar vazia, nós vamos aguardar a obtenção das categorias, porque é uma requisição HTTP e pode levar um tempo. Quando estiver disponível, vamos pegar o retorno da função e reatribuir às categorias.
+
+Vamos verificar o que acontece se fizermos isso. Uma vez salvo o arquivo, voltamos ao projeto no navegador. Houve uma leve demora, mas já são exibidos os nomes de todas as 12 categorias do JSON, o que já é muito interessante.
+
+Agora, vamos voltar para rever o código. Queremos explicar melhor como ocorre a reatribuição à propriedade categorias.
+
+Para isso, vamos forçar uma espera de 3 segundos a mais para a requisição ser feita no arquivo index.ts. Usaremos um código de exemplo que você não precisa copiar, é apenas para propósito de demonstração.
+
+index.ts:
+await new Promise((resolver) => {
+  setTimeout(resolver, 3000);
+})
+COPIAR CÓDIGO
+Esse código basicamente aguarda uma promessa (Promise()) que criamos do zero e só vamos resolver essa promessa após 3 segundos. Colocamos no código um valor de 3000 milissegundos.
+
+Agora iremos forçar as informações a serem retornadas após 3 segundos. Com o arquivo salvo, atualizamos a página no navegador. A princípio, não haverá nada exibido na parte de categorias, mas após os 3 segundos, a página é atualizada e mostra as 12 categorias.
+
+Se prestarmos atenção, em SelecionarIngredientes.vue, a lista inicial está vazia, por isso não era mostrado nada. Por 3 segundos, o Vue aguardou a obtenção das categorias e reatribuiu à propriedade categorias.
+
+Porém, quando a reatribuição aconteceu, a tela foi atualizada automaticamente. Não precisamos fazer isso manualmente com JavaScript, não precisamos fazer um innerHTML, porque o Vue faz isso de forma automática.
+
+Essa é uma característica muito importante de frameworks front-end. As propriedades no data() são reativas por padrão. Isso significa que, quando alteramos o valor delas, a interface do componente é atualizada de acordo com o novo valor dessas propriedades. Essa característica se chama reatividade.
+
+Outra forma de chamar essas propriedades reativas, que também é um termo comum, é estado. Portanto, podemos chamar as categorias em data() de estados. Qualquer propriedade que criarmos dentro de data(), podemos chamar de estado.
+
+Esse é um dos conceitos fundamentais de frameworks front-end, presente não apenas no Vue, mas também em frameworks como React e Angular. Vamos revisitar esse conceito mais vezes durante o curso, em outros contextos.
+Para finalizar, vamos apagar o código em que forçamos os 3 segundos, apenas para visualizar melhor a re-renderização na tela. Feito isso, precisamos apenas corrigir um erro de TypeScript. Em categoria.nome, na <li> da linha 26, se passarmos o cursor por cima, é indicado que a propriedade nome é desconhecida.
+
+Isso acontece porque quando consultamos de uma API, o TypeScript não consegue saber exatamente qual é o tipo de estrutura que obtemos da resposta. Nós sabemos que é uma lista de objetos, mas o TypeScript não sabe. Então, precisamos informar para ele essa estrutura.
+
+Para começar, criaremos uma nova pasta dentro de "src" chamada "interfaces". Dentro dela, criaremos um arquivo chamado ICategoria.ts. Os caracteres "I" e "C" são maiúsculas. Esta é uma convenção utilizada para criar uma nova interface.
+
+No arquivo, escreveremos export default interface e a chamaremos de ICategoria, seguindo a mesma nomenclatura.
+
+Dentro dela, definiremos o formato do objeto de categoria. Há uma propriedade chamada nome, que é do tipo string; outra chamada ingredientes, que é uma lista de strings (string[]); e outra propriedade chamada imagem, que também é uma string. Após esses passos, salvamos o arquivo.
+
+ICategoria.ts:
+export default interface ICategoria {
+  nome: string;
+  ingredientes: string[];
+  imagem: string;
+}
+COPIAR CÓDIGO
+Agora, podemos ir para o arquivo index.ts e, na linha 4, inserir um tipo para a constante categorias, colocando : ICategoria[]. Especificamos que é uma lista de categoria usando [], ou seja, uma lista de objetos que seguem este formato.
+
+Agora só precisamos importar a interface. Se a sugestão de importação não aparecer automaticamente, a importaremos manualmente. Para isso, escrevemos import type ICategoria from '' e utilizamos o atalho @/interfaces/ICategoria.
+
+index.ts:
+import type ICategoria from '@/interfaces/ICategoria';
+
+export async function obterCategorias() {
+  const resposta = await fetch('https://gist.githubusercontent.com/antonio-evaldo/002ad55e1cf01ef3fc6ee4feb9152964/raw/07e853b7d0626db51ce2e84bb2f15ca450b7bd7f/categorias.json');
+
+  const categorias: ICategoria[] = await resposta.json();
+
+  return categorias;
+}
+COPIAR CÓDIGO
+É possível que haja uma linha sublinhada em vermelho no caminho adicionado na importação, mas se isso acontecer, basta reiniciar o VS Code. Às vezes, o TypeScript não reconhece os import corretamente.
+Após salvar o arquivo, retornamos a SelecionarIngredientes.vue, que agora apresenta um erro diferente. Ele indica que o estado categorias não tem um tipo. Para "tipar" um estado no Vue, podemos inserir o tipo na declaração de categorias, após a lista vazia, adicionando as ICategoria[]. O editor fornece uma sugestão de importação, adicionada ao início do arquivo.
+
+SelecionarIngredientes.vue:
+<script lang="ts">
+import { obterCategorias } from '@/http/index';
+import type ICategoria from '@/interfaces/ICategoria';
+
+export default {
+  data() {
+    return {
+      categorias: [] as ICategoria[]
+    }
+  },
+  async created() {
+    this.categorias = await obterCategorias();
+  }
+}
+</script>
+COPIAR CÓDIGO
+Revisando o que fizemos, temos um estado que começa com uma lista vazia, tipado como ICategoria, e depois conseguimos reatribuir conforme definido em index.ts, utilizando a interface ICategoria que funciona como um modelo de objeto, com a ajuda do TypeScript.
+
+Conclusão
+Foram muitos conceitos novos, mas conseguimos importar com sucesso a informação de uma URL no Vue. Na próxima aula, continuaremos a codificar a página e concluiremos a parte dos cartões de categorias. Esperamos você lá!
+
+@@10
+Para saber mais: Gists do GitHub
+
+A URL que utilizamos para obter o JSON de categorias foi disponibilizada a partir de um Gist do GitHub.
+Um Gist é basicamente um ou mais blocos de códigos, escritos em qualquer linguagem, que você pode criar no site GitHub Gist. Basta ter uma conta no GitHub, acessar o site e você poderá criar seus próprios Gists!
+
+Para compartilhar um Gist com quem você quiser, antes de criá-lo, basta alterar a opção “Create secret gist” para “Create public gist”, assim ele se tornará público. Depois de criá-lo, você terá um link como o seguinte:
+
+https://gist.github.com/antonio-evaldo/002ad55e1cf01ef3fc6ee4feb9152964
+Cada bloco de código do Gist possui um botão chamado “Raw”, que levará a uma URL para aquele bloco de código específico, que mostra na tela seu código-fonte. Os dois blocos de código do meu gist acima possuem essas URLs:
+
+https://gist.githubusercontent.com/antonio-evaldo/002ad55e1cf01ef3fc6ee4feb9152964/raw/bf463b47860043da3b3604ca60cffc3ad1ba9865/categorias.json
+https://gist.githubusercontent.com/antonio-evaldo/002ad55e1cf01ef3fc6ee4feb9152964/raw/bf463b47860043da3b3604ca60cffc3ad1ba9865/receitas.json
+Bacana, não é? Essa é uma forma muito simples de criar URLs e praticar requisições GET nos seus projetos!
+
+@@11
+Para saber mais: métodos de ciclo de vida
+
+No vídeo anterior, você aprendeu sobre o created(), um dos métodos de ciclo de vida do Vue. A Angela Caldas preparou o artigo VueJS: ciclo de vida dos componentes para você se aprofundar mais nesse tema!
+
+https://www.alura.com.br/artigos/vuejs-ciclo-vida-componentes?_gl=1*9589g5*_ga*MTgwMzIzMjk2Ni4xNjg4ODE5OTcz*_ga_1EPWSW3PCS*MTcwODM4MDE0Ny4yMDMuMS4xNzA4Mzg1MjMwLjAuMC4w*_fplc*WkxZb2ZacEh5bDFTNnp1WXYlMkJhcGZoSHMzWlhSTFNUaXpYWWpDd01BUlJGS3FseXJQUzkyWXR3JTJGVlB2Rm92VnZNUVdqMkNFaHR2dnFQWlRsU2tzMFZXQlY0WDRWWTZSWGw2YkZlb0lXODM4R25OTlpRRDE0MiUyRlBCTzg0NyUyRlElM0QlM0Q.
+
+@@12
+Melhorando o código com diretivas
+
+Victor está começando seus estudos em Vue e pediu para você analisar o código de um de seus componentes, que está atualmente assim:
+<script lang="ts">
+export default {
+  data() {
+    return {
+      animes: ['Attack on Titan', 'Hunter x Hunter', 'One Piece']
+    };
+  }
+}
+</script>
+
+<template>
+  <section>
+    <h1>Animes topzera:</h1>
+
+    <ul>
+      <li>{{ animes[0] }}</li>
+      <li>{{ animes[1] }}</li>
+      <li>{{ animes[2] }}</li>
+    </ul>
+
+    <p>
+      Nenhum anime na lista :(
+    </p>
+  </section>
+</template>
+COPIAR CÓDIGO
+Victor ainda não conhece as diretivas do Vue e não sabe uma forma mais dinâmica de renderizar a lista de <li>'s em seu código. Além disso, ele quer que o parágrafo <p> apareça somente se a lista de animes estiver vazia.
+
+Qual dos códigos abaixo melhor reescreve o código de Victor?
+
+<template>
+  <section>
+    <h1>Animes topzera:</h1>
+
+    <ul v-if="animes">
+      <li v-for="anime in animes" :key="anime">
+        {{ anime }}
+      </li>
+    </ul>
+
+    <p v-else>
+      Nenhum anime na lista :(
+    </p>
+  </section>
+</template>
+ 
+Alternativa correta
+<template>
+  <section>
+    <h1>Animes topzera:</h1>
+
+    <ul v-if="animes.length">
+      <li v-for="anime in animes" :key="anime">
+        {{ anime }}
+      </li>
+    </ul>
+
+    <p v-else>
+      Nenhum anime na lista :(
+    </p>
+  </section>
+</template>
+ 
+As diretivas v-if e v-else estão sendo utilizadas para renderizar a lista ou o parágrafo de forma condicional. Além disso, o v-for e o atributo key estão sendo utilizados corretamente.
+Alternativa correta
+<template>
+  <section>
+    <h1>Animes topzera:</h1>
+
+    <ul v-if="animes.length">
+      <li v-for="anime in animes">
+        {{ anime }}
+      </li>
+    </ul>
+
+    <p v-else>
+      Nenhum anime na lista :(
+    </p>
+  </section>
+</template>
+
+@@13
+Faça como eu fiz: renderizando lista e obtendo categorias
+
+Agora é sua vez de colocar a mão na massa! Crie um componente ConteudoPrincipal que contém a seção “Sua lista” com uma lista com alguns ingredientes. Dentro desse componente, crie também um chamado SelecionarIngredientes, que contém o início da seção de seleção e, por enquanto, mostra apenas os nomes das categorias.
+
+Altere o código de App.vue para utilizar o ConteudoPrincipal:
+<script lang="ts">
+import Banner from './components/Banner.vue';
+import ConteudoPrincipal from './components/ConteudoPrincipal.vue';
+
+export default {
+  components: { Banner, ConteudoPrincipal }
+}
+</script>
+
+<template>
+  <Banner />
+  <ConteudoPrincipal />
+</template>
+COPIAR CÓDIGO
+Mas falta criarmos esse componente! Dentro da pasta src/components, crie o arquivo ConteudoPrincipal.vue:
+
+<script lang="ts">
+import SelecionarIngredientes from './SelecionarIngredientes.vue';
+
+export default {
+  data() {
+    return {
+      ingredientes: ['Alho', 'Manteiga', 'Orégano']
+    };
+  },
+  components: { SelecionarIngredientes }
+}
+</script>
+
+<template>
+  <main class="conteudo-principal">
+    <section>
+      <span class="subtitulo-lg sua-lista-texto">
+        Sua lista:
+      </span>
+
+      <ul v-if="ingredientes.length" class="ingredientes-sua-lista">
+        <li v-for="ingrediente in ingredientes" :key="ingrediente" class="ingrediente">
+          {{ ingrediente }}
+        </li>
+      </ul>
+
+      <p v-else class="paragrafo lista-vazia">
+        <img src="../assets/imagens/icones/lista-vazia.svg" alt="Ícone de pesquisa">
+        Sua lista está vazia, selecione ingredientes para iniciar.
+      </p>
+    </section>
+
+    <SelecionarIngredientes />
+  </main>
+</template>
+
+<style scoped>
+.conteudo-principal {
+  padding: 6.5rem 7.5rem;
+  border-radius: 3.75rem 3.75rem 0rem 0rem;
+  background: var(--creme, #FFFAF3);
+  color: var(--cinza, #444);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5rem;
+}
+
+.sua-lista-texto {
+  color: var(--coral, #F0633C);
+  display: block;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.ingredientes-sua-lista {
+  display: flex;
+  justify-content: center;
+  gap: 1rem 1.5rem;
+  flex-wrap: wrap;
+}
+
+.ingrediente {
+  display: inline-block;
+  border-radius: 0.5rem;
+  min-width: 4.25rem;
+  padding: 0.5rem;
+  text-align: center;
+  transition: 0.2s;
+  color: var(--creme, #FFFAF3);
+  background: var(--coral, #F0633C);
+  font-weight: 700;
+}
+
+.lista-vazia {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+
+  color: var(--coral, #F0633C);
+  text-align: center;
+}
+
+@media only screen and (max-width: 1300px) {
+  .conteudo-principal {
+    padding: 5rem 3.75rem;
+    gap: 3.5rem;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .conteudo-principal {
+    padding: 4rem 1.5rem;
+    gap: 4rem;
+  }
+}
+</style>
+COPIAR CÓDIGO
+Esse componente também está utilizando o SelecionarIngredientes, que também falta criarmos. Na pasta de componentes, crie o arquivo SelecionarIngredientes.vue:
+
+<script lang="ts">
+import { obterCategorias } from '@/http/index';
+import type ICategoria from '@/interfaces/ICategoria';
+
+export default {
+  data() {
+    return {
+      categorias: [] as ICategoria[]
+    }
+  },
+  async created() {
+    this.categorias = await obterCategorias();
+  }
+}
+</script>
+
+<template>
+  <section class="selecionar-ingredientes">
+    <h1 class="cabecalho titulo-ingredientes">Ingredientes</h1>
+
+    <p class="paragrafo-lg instrucoes">
+      Selecione abaixo os ingredientes que você quer usar nesta receita:
+    </p>
+
+    <ul class="categorias">
+      <li v-for="categoria in categorias" :key="categoria.nome">
+        {{ categoria.nome }}
+      </li>
+    </ul>
+
+    <p class="paragrafo dica">
+      *Atenção: consideramos que você tem em casa sal, pimenta e água.
+    </p>
+  </section>
+</template>
+
+<style scoped>
+.selecionar-ingredientes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.titulo-ingredientes {
+  color: var(--verde-medio, #3D6D4A);
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+.instrucoes {
+  margin-bottom: 2rem;
+}
+
+.categorias {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.dica {
+  align-self: flex-start;
+  margin-bottom: 3.5rem;
+}
+
+@media only screen and (max-width: 767px) {
+  .dica {
+    margin-bottom: 2.5rem;
+  }
+}
+</style>
+
+
+@@14
+O que aprendemos?
+
+Nessa aula, você aprendeu a:
+Repetir código HTML dinamicamente com a diretiva v-for:
+A sintaxe é v-for="item in lista". A lista pode ser disponibilizada no <script> do componente, por meio da opção data(), por exemplo;
+Com essa diretiva, mantemos em um único local do código o HTML que será o “modelo” para a renderização da lista;
+Inserir dados do JavaScript no conteúdo de tags HTML com a sintaxe de interpolação {{ }};
+Inserir dados do JavaScript nos atributos do HTML com a diretiva v-bind: (ou simplesmente :);
+Utilizar o atributo :key como boa prática na renderização de listas:
+Esse é um atributo especial fornecido pelo Vue e que o ajuda a identificar cada item da lista e renderizá-los corretamente;
+O valor desse atributo deve ser um tipo primitivo do JavaScript (número, string ou Symbol) e deve ser único para cada item da lista;
+Renderizar HTML condicionalmente com as diretivas v-if e v-else;
+Utilizar o método de ciclo de vida created() para lidar com código assíncrono;
+Esse método é executado após as propriedades de data() terem sido definidas, sendo assim possível acessá-las e modificá-las.
+Aplicar reatividade na prática:
+Você descobriu o que é uma variável reativa (ou estado). Quando seu valor é alterado, o componente reage a essa mudança e o Vue o re-renderiza automaticamente, de acordo com o novo valor do estado;
+As propriedades do objeto retornado no data() são estados.
