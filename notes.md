@@ -2228,3 +2228,1285 @@ Esse método é executado após as propriedades de data() terem sido definidas, 
 Aplicar reatividade na prática:
 Você descobriu o que é uma variável reativa (ou estado). Quando seu valor é alterado, o componente reage a essa mudança e o Vue o re-renderiza automaticamente, de acordo com o novo valor do estado;
 As propriedades do objeto retornado no data() são estados.
+
+#### 20/02/2024
+
+@03-Passando informações com props
+
+@@01
+Projeto da aula anterior
+
+Caso deseje, você pode baixar o projeto da aula anterior ou visualizar os arquivos no GitHub.
+Bons estudos!
+
+https://github.com/alura-cursos/cookin-up/archive/refs/heads/aula-2.zip
+
+https://github.com/alura-cursos/cookin-up/tree/aula-2
+
+@@02
+Personalizando cards com props
+
+Já estamos conseguindo exibir os nomes das categorias na tela. Porém, temos que continuar a codificar essa parte. Se observarmos o Figma, temos muitos mais estilos para adicionar ao card. Então, vamos ao VS Code fazer isso!
+Organizando o código
+Vamos acessar SelecionarIngredientes.vue. Dentro da <li>, por enquanto, estamos imprimindo apenas categoria.nome.
+
+<ul class="categorias">
+  <li v-for="categoria in categorias" :key="categoria.nome">
+      {{ categoria.nome }}
+    </li>
+ </ul> 
+COPIAR CÓDIGO
+Vamos recortar essa parte com o comando "Ctrl + X". Sabendo que ela envolve mais HTML e CSS, e com a intenção de seguir nossos princípios de organização, vamos criar um novo componente para separar este código.
+
+Então, na pasta de "components", vamos criar um novo arquivo chamado CardCategoria.vue . Ele terá um <template> e, dentro deste template, podemos colar o que recortamos anteriormente: categoria.nome.
+
+<template>
+  {{ categoria.nome }}
+</template> 
+COPIAR CÓDIGO
+Entretanto, há um problema: não temos mais acesso à variável categoria que foi disponibilizada no arquivo Selecionaringredientes.vue.
+
+Comunicação entre componentes
+Esse é um problema clássico de comunicação entre componentes. Vamos passar <CardCategoria /> e perceberemos que CardCategoria foi importado com sucesso no script. Em seguida, vamos usar o atalho "Alt + Shift + F" para formatar o documento.
+
+Precisamos passar a variável categoria para o componente filho CardCategoria. Para isso, no arquivo CardCategoria.vue, criaremos uma <script> e definiremos lang="ts". Depois, escreveremos export default, abriremos o objeto e utilizaremos uma nova opção chamada props:.
+
+<script lang="ts">
+export default {
+  props:
+}
+</script>
+
+<template>
+   {{ categoria.nome }}
+ </template>
+COPIAR CÓDIGO
+Implementando as Props
+O objeto props terá uma propriedade chamada categoria, que será disponibilizada para o nosso template. O valor será do tipo Object, já que a variável é um objeto com propriedades.
+
+<script lang="ts">
+export default {
+  props: {
+      categoria: Object
+}
+</script>
+
+<template>
+   {{ categoria.nome }}
+ </template>
+COPIAR CÓDIGO
+Vamos salvar arquivo e retornar para SelecionarIngredientes.vue, em cardCategoria. Aqui, vamos escrever como se fosse um atributo e pressionar "Ctrl + espaço". Aparecerá :categoria como sugestão, que é a propriedade que criamos no outro arquivo.
+
+Poderíamos escrever categoria= e adicionar algum valor, mas se não utilizarmos os "dois pontos (:)", que é o v-bind, passaríamos um texto estático.
+
+Como queremos passar a variável disponibilizada pelo v-for, precisamos usar o v-bind. Então, inserimos os dois pontos e, entre aspas, escrevemos categoria.
+
+<ul class="categorias">
+  <li v-for="categoria in categorias" :key="categoria.nome">
+      <CardCategoria :categoria="categoria" />
+     </li>
+    </ul>
+COPIAR CÓDIGO
+Com isso, estamos passando o valor da variável categoria para a propriedade categoria à esquerda do sinal de igual. Será que vai funcionar?
+
+Vamos salvar o arquivo e voltar para o navegador, onde acessaremos o projeto. Ele continua funcionando corretamente. Agora, retornaremos ao VS Code, porque o TypeScript está sinalizando que a propriedade categoria é possivelmente indefinida.
+
+Para resolver isso, basta alterar a sintaxe da categoria. Em vez de entregar um objeto simples, especificaremos que seu valor é uma propriedade chamada type.
+
+script lang="ts">
+export default {
+  props: {
+       categoria: { type: Object}
+    }
+}
+
+// Código omitido. 
+COPIAR CÓDIGO
+Com essa sintaxe, podemos adicionar outra propriedade a esse objeto chamada required, que significa "requerido" ou "obrigatório". Seu valor será true. Assim, definimos que essa propriedade deve ser passada quando um componente for consumir o CardCategoria.
+
+script lang="ts">
+export default {
+  props: {
+       categoria: { type: Object, required: true}
+    }
+}
+
+// Código omitido. 
+COPIAR CÓDIGO
+Dessa forma, estamos instruindo ao TypeScript que, com certeza, a propriedade categoria está definida e o sublinhado em vermelho que sinaliza o problema desaparecerá. Por fim, salvaremos este arquivo.
+
+Agora, vamos retornar ao navegador. Para nos certificarmos de que realmente conseguimos acessar mais propriedades dessa categoria, retornaremos ao arquivo CardCategoria.vue e apertaremos "Enter" logo após categoria.nome.
+
+O próximo passo é abrir a sintaxe de interpolação e escrever categoria.imagem.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+   {{ categoria.nome }}
+     {{ categoria.imagem }}
+  </template>
+COPIAR CÓDIGO
+Salvando o arquivo e retornando ao projeto no navegador, é possível conferir que realmente está aparecendo na primeira categoria, por exemplo, "Laticínios e Ovos" seguido dos do nome da imagem laticinios..e..ovos.png.
+
+Portanto, estamos conseguindo acessar com sucesso as informações que estão vindo de outro componente. Isso significa que o componente de CardCategoria.vue, onde estamos reutilizando o código HTML, torna-se mais personalizável.
+
+Significa que podemos passar um valor específico para a propriedade, dependendo de onde vamos utilizar o CardCategoria.vue, tornando-o mais reutilizável. É um recurso bastante útil!
+
+Tipagem e Segurança com TypeScript
+Para encerrar o vídeo, observe que quando escrevemos categoria.imagem, não obtivemos o autocomplete. Isso é meio estranho para quem está utilizando TypeScript.
+
+Se escrevermos o nome da propriedade incorretamente, por exemplo, imagemm (a palavra "imagem" com "m" duas vezes), salvarmos o arquivo e abrirmos o navegador, já não vai aparecer. Nós não queremos correr esse tipo de risco.
+
+Para obtermos mais segurança, o que podemos fazer? Na sintaxe da propriedade, em Object, vamos tornar o type mais específico, porque ele está dizendo que aceitamos receber qualquer objeto.
+
+No entanto, para utilizar, por exemplo, a interface e categoria.ts, que já é um modelo que define como o objeto deve ser, podemos escrever Object as PropType. O PropType será importado do pacote vue, conforme a sugestão do VS Code.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object as PropType, required: true}
+  }
+}
+</script>
+
+<template>
+   {{ categoria.nome }}
+     {{ categoria.imagemm }}
+  </template>
+COPIAR CÓDIGO
+Com o PropType importado, vamos passar a generics: <>. Dentro dela, informamos qual é o tipo específico que desejamos: a propriedade categoria. Então, o tipo é justamente o <ICategoria>, que também será importado das interfaces que criamos anteriormente.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object as PropType<ICategoria>, required: true}
+  }
+}
+</script>
+
+<template>
+   {{ categoria.nome }}
+     {{ categoria.imagemm }}
+  </template>
+COPIAR CÓDIGO
+Importamos e um erro foi sinalizado, informando que a propriedade imagemm não existe no tipo ICategoria. Então, vamos corrigir para imagem, salvar o arquivo e voltar ao navegador. Tudo está funcionando perfeitamente.
+
+Agora, para compreendermos um pouco melhor o que fizemos, vamos retornar ao VS Code. O props deriva de property em inglês ou "propriedade" em português. Ele é usado em um contexto bastante específico, onde temos uma propriedade passando de um componente para outro.
+
+O propType foi obtido do pacote vue e é um tipo utilitário fornecido para que seja possível realizar uma conversão mais explícita, já que o tipo Object do Javascript é muito genérico e os tipos do TypeScript são um pouco mais específicos.
+
+Próximos passos
+Portanto, já apreendemos como passar a informação de um componente para outro. No próximo vídeo, continuar a codificar o CardCategoria.vue.
+
+Até mais!!
+
+@@03
+Preparando o ambiente: pasta de imagens e CSS do CardCategoria
+
+Para o próximo vídeo, faça o download de uma nova pasta imagens.
+Também utilizaremos o seguinte código CSS:
+
+.categoria {
+  width: 19.5rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: var(--branco, #FFF);
+  box-shadow: 4px 4px 10px 0px rgba(68, 68, 68, 0.05);
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.categoria__cabecalho {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.categoria__imagem {
+  width: 3.5rem;
+}
+
+.categoria__nome {
+  text-align: center;
+  color: var(--verde-medio, #3D6D4A);
+  font-weight: 700;
+}
+
+.categoria__ingredientes {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+
+https://caelum-online-public.s3.amazonaws.com/3397-vue/public.zip
+
+@@04
+Importando imagens dinamicamente
+
+Criamos uma prop para personalizar o componente de CardCategoria.vue. Até agora, conseguimos passar informações de uma categoria, como o nome e a imagem exibidos na tela. Contudo, precisamos ajustar o card segundo a nossa lista no Figma. Vamos fazer isso no VS Code!
+Refinando o Componente CardCategoria.vue:
+No VS Code, acessaremos o componente de CardCategoria.vue que está na pasta "components".
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+   {{ categoria.nome }}
+     {{ categoria.imagem }}
+  </template>
+COPIAR CÓDIGO
+Dentro do template, vamos apagar o que está escrito e passar article, com a classe "categoria". Dentro dele, teremos um header com a classe categoria__cabecalho. Dentro dele, vamos usar a imagem, que é referenciada pela própria categoria, img.
+
+Essa imagem terá uma classe .categoria__imagem.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          img.categoria__imagem
+        </header>
+     </article>
+  </template>
+COPIAR CÓDIGO
+Sobre o src, precisamos refletir um pouco. Cada imagem tem seu próprio nome e precisaríamos usar v-bind no src para utilizarmos a informação da categoria, que é uma informação em JavaScript. Mas, para compreendermos a diferença entre usar v-bind no src ou não, vamos, primeiro, importar uma imagem qualquer que está no projeto.
+
+Então, passaremos "../assets/imagens/logo.svg".
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img src="../assets/imagens/logo.svg" alt=""
+            class="categoria__imagem">
+        </header>
+     </article>
+  </template>
+COPIAR CÓDIGO
+Se fizermos isso, salvarmos o arquivo e voltarmos ao navegador, veremos o logotipo do site impresso 12 vezes.
+
+Agora, vamos observar o que acontece se adicionarmos o v-bind (isto é, :) no src e envolvermos esse mesmo caminho em aspas simples para evitar conflito com as aspas duplas da tag.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img :src="'../assets/imagens/logo.svg'" alt=""
+            class="categoria__imagem">
+        </header>
+     </article>
+  </template>
+COPIAR CÓDIGO
+Integração Dinâmica de Imagens com o Vite
+Salvamos o arquivo, retornamos ao navegador, atualizamos a página para não pegarmos as imagens do cache e as imagens desapareceram. Isto mostra que, na verdade, o v-bind não funciona exatamente junto com o src.
+
+Há um processo de compilação do Vite em que ele interpretará de maneira diferente quando usamos uma expressão JavaScript para o src. Assim, não consegue resolver da mesma forma que resolveria ao passar o caminho exato da imagem, depois do processo de compilação do vue, ao pegar o código e mostrar no navegador.
+
+Portanto, vamos usar o comando "Ctrl + Z" para recuperarmos o código anterior e deixaremos o src vazio, como estava antes.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img src="" alt="" class="categoria__imagem">
+        </header>
+     </article>
+  </template>
+COPIAR CÓDIGO
+Vamos usar outro recurso fornecido pelo Vite, que nos permite referenciar diretamente a pasta "public" que está na raiz do projeto. Antes, é necessário selecionar uma pasta com várias imagens (já disponível para você baixar) e arrastá-la até a pasta "public".
+
+Agora "public" tem uma pasta "imagens". Dentro da pasta "imagens", existem mais duas pastas: "ícones". Em "ícones", há outra pasta chamada "categorias ingredientes".
+
+É a pasta "categorias ingredientes" que utilizaremos. Ela é composta por 12 imagens PNG com os nomes referenciados pela interface da nossa categoria. Portanto, precisamos encontrar uma forma de referenciar essa pasta "public".
+
+Vamos fechar o explorar o retornar ao src da imagem. Colocaremos um bind no src, :, uma template string (par de crases), que é uma expressão válida do JavaScript, e uma barra, /. O caminho vai ficar absoluto e a barra vai referenciar a pasta "public". A partir dessa pasta, acessaremos "imagens > icones > categorias_ingredientes".
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img src="`/imagens/icones/categorias_ingredientes/`" alt="" class="categoria__imagem">
+        </header>
+     </article>
+  </template>
+COPIAR CÓDIGO
+O próximo passo é referenciar uma das imagens, a depender da propriedade que estamos recebendo. Então, utilizaremos as classes de interpolação, adicionando cifrão, $, abrindo chaves, {}, e, por fim, inserindo categoria.imagem.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img src="`/imagens/icones/categorias_ingredientes/${categoria.imagem}`" alt="" class="categoria__imagem">
+        </header>
+     </article>
+  </template>
+COPIAR CÓDIGO
+Será que isso funcionará? Vamos salvar o arquivo, retornar ao navegador E atualizar a página com o atalho "F5". Conseguimos exibir as duas imagens referentes às categorias!
+
+É assim que fazemos uma importação dinâmica de imagens, utilizando o recurso do Vite, que nos permite importar um arquivo diretamente da pasta "public".
+
+Superada essa parte, vamos fechar o explorador e continuar a codificação. Depois de imagem, ainda dentro do header, vamos escrever um h2 com a classe parágrafo-lg e mais uma classe chamada categoria__nome.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img src="`/imagens/icones/categorias_ingredientes/${categoria.imagem}`" alt="" class="categoria__imagem">
+        
+         <h2 class="paragrafo-lg categoria__nome"></h2>
+        </header>
+     </article>
+  </template>
+COPIAR CÓDIGO
+Nesse h2, vamos inserir uma interpolação com categoria.nome, isto é, {{ categoria.nome }}.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img src="`/imagens/icones/categorias_ingredientes/${categoria.imagem}`" alt="" class="categoria__imagem">
+        
+         <h2 class="paragrafo-lg categoria__nome">{{ categoria.nome }}</h2>
+        </header>
+     </article>
+  </template>
+COPIAR CÓDIGO
+Fora de header e dentro do article, vamos adicionar uma lista para imprimir a lista de ingredientes referentes a essa categoria. A ul terá uma classe chamada categoria__ingredientes. Dentro da ul, teremos mais uma <li> com um v-for.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img src="`/imagens/icones/categorias_ingredientes/${categoria.imagem}`" alt="" class="categoria__imagem">
+        
+         <h2 class="paragrafo-lg categoria__nome">{{ categoria.nome }}</h2>
+        </header>
+        
+        <ul class="categoria__ingredientes">
+          <li v-for"">
+     </article>
+  </template>
+COPIAR CÓDIGO
+No v-for, teremos um ingrediente in categoria.ingredientes, referente à lista presente na categoria.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img :src="`/imagens/icones/categorias_ingredientes/${categoria.imagem}`" alt="" class="categoria__imagem">
+        
+         <h2 class="paragrafo-lg categoria__nome">{{ categoria.nome }}</h2>
+        </header>
+        
+        <ul class="categoria__ingredientes">
+          <li v-for="ingrediente in categoria.ingredientes">
+          </ul>
+     </article>
+  </template>
+COPIAR CÓDIGO
+Seguindo a boa prática, também vamos adicionar :key="" e fornecer uma chave única para cada li. A chave única será o próprio ingrediente, já que ele é uma string e será um identificador único.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img :src="`/imagens/icones/categorias_ingredientes/${categoria.imagem}`" alt="" class="categoria__imagem">
+        
+         <h2 class="paragrafo-lg categoria__nome">{{ categoria.nome }}</h2>
+        </header>
+        
+        <ul class="categoria__ingredientes">
+          <li v-for="ingrediente in categoria.ingredientes" :key="ingrediente">
+            
+         </li>
+        </ul>
+     </article>
+  </template>
+COPIAR CÓDIGO
+Por fim, dentro da li, podemos usar novamente a interpolação e inserir o ingrediente em si, {{ ingrediente }}.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img :src="`/imagens/icones/categorias_ingredientes/${categoria.imagem}`" alt="" class="categoria__imagem">
+        
+         <h2 class="paragrafo-lg categoria__nome">{{ categoria.nome }}</h2>
+        </header>
+        
+        <ul class="categoria__ingredientes">
+          <li v-for="ingrediente in categoria.ingredientes" :key="ingrediente">
+              {{ ingrediente }}
+         </li>
+        </ul>
+     </article>
+  </template>
+COPIAR CÓDIGO
+Agora, vamos testar! Salvaremos o arquivo e retornaremos ao navegador. O conteúdo está aparecendo corretamente, só falta a estilização.
+
+Voltando ao código, vamos abrir uma tag style, scoped.
+
+script lang="ts">
+export default {
+  props: {
+     categoria: { type: Object, required: true}
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+      <header class="categoria__cabecalho">
+          <img :src="`/imagens/icones/categorias_ingredientes/${categoria.imagem}`" alt="" class="categoria__imagem">
+        
+         <h2 class="paragrafo-lg categoria__nome">{{ categoria.nome }}</h2>
+        </header>
+        
+        <ul class="categoria__ingredientes">
+          <li v-for="ingrediente in categoria.ingredientes" :key="ingrediente">
+              {{ ingrediente }}
+         </li>
+        </ul>
+     </article>
+  </template>
+    
+    </style scoped>
+    
+    </style>
+COPIAR CÓDIGO
+E copiaremos mais uma vez o CSS que já está pronto e colaremos dentro da tag style. Salvaremos o arquivo, retornaremos ao navegador e, agora, os nossos cards de categorias já estão bem estilizados. Está bem legal! Só está faltando a estilização dos próprios ingredientes.
+
+Próximos passos
+A partir do próximo vídeo, aprenderemos a reutilizar os estilos que já estamos usando nos ingredientes. Até mais!!
+
+@@05
+Reutilizando CSS com componentes
+
+Estamos quase finalizando os cards de categoria, falta apenas estilizarmos os ingredientes.
+Reutilizando estilos
+Se observarmos o Figma, notaremos que os ingredientes possuem uma estilização muito semelhante, às vezes até igual, aos ingredientes da lista, que já fizemos na parte superior da tela. Então, seria interessante se existisse uma forma de reaproveitar esses estilos.
+
+Você pode pensar: e se usássemos classes CSS globais? Inclusive, já estamos utilizando no nosso projeto para tipografia. Porém, conheceremos uma solução que vai deixar o nosso código um pouco mais legível.
+
+Nessa situação específica, em que temos alguns poucos estilos que queremos reutilizar em um componente que ainda será criado, essa solução será mais adequada, vai permitir que o código seja mais fluido.
+
+Além disso, utilizar os CSS globais nessa situação dificultaria referenciar as classes que estamos criando. Eles acabam não se integrando tão bem com os componentes.
+
+Então, vamos criar um novo componente que reutilizará os estilos. Já sabemos que os componentes reutilizam HTML, CSS e, às vezes, até lógica, portanto, vamos fazer isso agora.
+
+No VS Code, acessaremos a pasta "components" e criaremos um novo componente chamado Tag.vue. Esse nome, inclusive, vem do Figma, por ser exatamente o mesmo nome do componente.
+
+Por enquanto, a Tag.vue terá um <template> com <span>, pois sempre vamos receber um texto. Logo, abriremos uma sintaxe de interpolação e adicionaremos um texto, porque precisamos deixar esse componente personalizado, passando um texto específico.
+
+Vamos voltar ao Figma. Anteriormente, comentamos que os estilos são praticamente os mesmos, só que o texto interno sempre muda. Assim, também vamos criar uma propriedade para personalizar o conteúdo.
+
+Então, vamos criar uma tag <script> com lang="ts". Em seguida, passamos export default, abrimos chaves e escrevemos props, que será um objeto com propriedade texto.
+
+<script lang="ts">
+export default {
+  props: {
+      texto:
+    }
+}
+</script>
+
+<template>
+  <span>
+      {{ texto }}
+    </span>
+ </template> 
+COPIAR CÓDIGO
+No texto, vamos abrir uma sintaxe de objeto para a propriedade e indicar que ela é do tipo String. Essa especificação já é suficiente, não precisaremos da ajuda do TypeScript.
+
+<script lang="ts">
+export default {
+  props: {
+      texto: { type: String }
+    }
+}
+</script>
+
+<template>
+  <span>
+      {{ texto }}
+    </span>
+ </template> 
+COPIAR CÓDIGO
+Seguindo, adicionaremos outra propriedade chamada required, com o valor true, para afirmar que ela é obrigatória. Devemos sempre passá-la se o componente de tag for consumido.
+
+<script lang="ts">
+export default {
+  props: {
+      texto: { type: String, required: true }
+    }
+}
+</script>
+
+<template>
+  <span>
+      {{ texto }}
+    </span>
+ </template> 
+COPIAR CÓDIGO
+Após salvar o arquivo, vamos acessar conteudoPrincipal.vue, que é onde estamos utilizando o ingrediente. Note que a <li> tem uma classe que se chama ingrediente.
+
+<ul v-if="ingredientes.length" class="ingredientes-sua-lista">
+  <li v-for="ingrediente in ingredientes" :key="ingrediente"
+    class="ingrediente">
+      {{ ingrediente}}
+    </li>
+ </ul>
+COPIAR CÓDIGO
+Na tag style, em ingrediente que está na linha 64, encontraremos exatamente os estilos que queremos reutilizar para, tornar, por exemplo, o fundo laranja, a cor de fonte branca, e adicionar alguns espaçamentos internos.
+
+.ingrediente 
+   display: inline-block;
+   border-radius: 0.5rem;
+   min-width: 4.25rem;
+   padding: 0.5rem;
+   text-align: center;
+   transition: 0.2s;
+   color: var(--creme, #FFFAF3);
+   background: var(--coral, #F0633C);
+   font-weight: 700;
+ }
+COPIAR CÓDIGO
+Vamos selecionar esses estilos com o atalho "Ctrl + X", voltar para a li, retirar apagar a classe. No lugar da interpolação em que inserimos o ingrediente, vamos chamar o componente Tag. Ele não está aparecendo, mas basta apertar "Esc" e "Ctrl + espaço" para ativar o autocompletamento do VS Code.
+
+Feito isso, basta apertar "Ente" na sugestão e fechar a tag.
+
+<ul v-if="ingredientes.length" class="ingredientes-sua-lista">
+  <li v-for="ingrediente in ingredientes" :key="ingrediente"
+     <Tag />
+    </li>
+ </ul>
+COPIAR CÓDIGO
+Também temos que passar a propriedade texto e o texto vai ser o ingrediente em si. Por fim, usaremos o atalho "Alt + shift + F" para formatar o documento e salvaremos o arquivo.
+
+<ul v-if="ingredientes.length" class="ingredientes-sua-lista">
+  <li v-for="ingrediente in ingredientes" :key="ingrediente"
+     <Tag :texto="ingrediente" />
+    </li>
+ </ul>
+COPIAR CÓDIGO
+Será que está funcionando? Vamos testar!
+
+Vamos retornar ao navegador, abrir o projeto e ele continua funcionando da mesma forma que antes, exceto a lista, que não está com as utilizações, porque utilizamos o comando "Ctrl + X" e não inserimos no componente. Vamos resolver isso agora!
+
+Abriremos a Tag.vue, criaremos uma nova tag style scoped, colaremos a classe .ingrediente, que copiamos anteriormente, e precisamos referenciá-la no span. Então, no span, vamos passar class="tag".
+
+O nome escolhido para a classe foi tag, porque ela ficará um pouco mais genérica, o que é apropriado para o componente.
+
+</script>
+
+<template>
+  <span class="tag">
+      {{ texto }}
+     </span>
+    </template>
+
+<style scoped> 
+.ingrediente 
+   display: inline-block;
+   border-radius: 0.5rem;
+   min-width: 4.25rem;
+   padding: 0.5rem;
+   text-align: center;
+   transition: 0.2s;
+   color: var(--creme, #FFFAF3);
+   background: var(--coral, #F0633C);
+   font-weight: 700;
+ }
+COPIAR CÓDIGO
+Quando quisermos utilizar esse componente de tag, nem sempre será para mostrar o ingrediente. Logo, esse nome ficará mais genérico e, para isso, também precisamos mudar o nome da minha classe no style. Portanto, ao invés de ingrediente será tag.
+
+</script>
+
+<template>
+  <span class="tag">
+      {{ texto }}
+     </span>
+    </template>
+
+<style scoped> 
+.tag {
+   display: inline-block;
+   border-radius: 0.5rem;
+   min-width: 4.25rem;
+   padding: 0.5rem;
+   text-align: center;
+   transition: 0.2s;
+   color: var(--creme, #FFFAF3);
+   background: var(--coral, #F0633C);
+   font-weight: 700;
+ }
+COPIAR CÓDIGO
+Agora sim! Salvaremos o arquivo, voltaremos ao navegador e a área em que utilizamos a tag no conteúdo principal já está atualizada e já trouxe os estilos do componente Tag. Podemos reutilizar esse componente nas categorias.
+
+Então, retornaremos ao VS Code e localizaremos o componente CardCategoria.vue. Dentro da tag li, onde estamos exibindo o ingrediente, vamos chamar o componente Tag e passar outra vez o texto="ingrediente".
+
+<ul class="categoria__ingredientes">
+          <li v-for"ingrediente in categoria.ingredientes" :key="ingrediente">
+           <Tag :texto="ingrediente" />
+         </li>
+        </lu>
+     </article>
+  </template>
+    
+    </style scoped>
+    
+    </style>
+COPIAR CÓDIGO
+Próximos passos
+O próximo passo é formatar o documento, salvar e retornar ao navegador. Já conseguimos reutilizar os estilos, porém, existe um novo problema: todos os ingredientes estão laranjas. Observando o Figma, notamos que o estado inicial deles começa como cinza.
+
+Esse é um problema que vamos explorar melhor no próximo vídeo e também aprenderemos como resolvê-lo. Até mais!!
+
+@@06
+Personalizando estilos
+
+Transcrição
+
+Criamos um componente Tag que encapsula os estilos CSS e reutiliza-os. No entanto, acabamos reutilizando muitos estilos e todas as tags se tornaram laranjas.
+Nossa intenção é que somente as tags que estão na parte de cima da tela fiquem laranjas. Abaixo, queremos ter um controle melhor sobre quando aplicar ou não esses estilos.
+
+Inclusive, isso já estava previsto no Figma. Os estilos iniciais são a letra do ingrediente preta e o fundo cinza. Vamos ao VS Code implementar uma solução.
+
+Personalizando os estilos
+No VS Code, abriremos o componente Tag.vue. Os estilos referentes à cor branca, ao fundo laranja e ao peso de fonte 700 — quando a tag é laranja, a fonte fica mais forte, bold (negrito) — são os três a seguir:
+
+  color: var(--creme, #FFFAF3);
+  background: var(--coral, #F0633C);
+  font-weight: 700;
+COPIAR CÓDIGO
+Esses são os três estilos que devem ser aplicados apenas se a tag estiver em estado ativo. Isso também está documentado no Figma. Vamos recortar esses três estilos, selecionando-os e apertando o comando "Ctrl + X".
+
+Se salvarmos o arquivo e retornarmos ao navegador, no projeto, tudo estará sem os três estilos removidos. Para ajustar, vamos adicionar novos estilos, que serão os novos padrões.
+
+Vamos definir uma propriedade color, que será a variável --cinza.
+
+</script>
+
+<template>
+  <span class="tag">
+      {{ texto }}
+     </span>
+    </template>
+
+<style scoped> 
+.tag {
+   display: inline-block;
+   border-radius: 0.5rem;
+   min-width: 4.25rem;
+   padding: 0.5rem;
+   text-align: center;
+   transition: 0.2s;
+   color: var(--cinza);
+ }
+ </style>
+COPIAR CÓDIGO
+Teremos também um background com a variável --cinza-claro.
+
+</script>
+
+<template>
+  <span class="tag">
+      {{ texto }}
+     </span>
+    </template>
+
+<style scoped> 
+.tag {
+   display: inline-block;
+   border-radius: 0.5rem;
+   min-width: 4.25rem;
+   padding: 0.5rem;
+   text-align: center;
+   transition: 0.2s;
+   color: var(--cinza);
+     background: var(--cinza-claro);
+ }
+ </style>
+COPIAR CÓDIGO
+E o font-weight será 400, que é o normal.
+
+</script>
+
+<template>
+  <span class="tag">
+      {{ texto }}
+     </span>
+    </template>
+
+<style scoped> 
+.tag {
+   display: inline-block;
+   border-radius: 0.5rem;
+   min-width: 4.25rem;
+   padding: 0.5rem;
+   text-align: center;
+   transition: 0.2s;
+   color: var(--cinza);
+     background: var(--cinza-claro);
+     font-weight: 400;
+ }
+ </style>
+COPIAR CÓDIGO
+Salvando esse arquivo e abrindo o navegador, todas as tags agora estão cinzas e com a fonte em cinza-escuro.
+
+Agora, vamos tentar aplicar os estilos que removemos de maneira condicional. No código, começaremos referenciando .tag e, se ela estiver com uma classe chamada .ativa, então, aplicaremos os estilos que foram retirados anteriormente.
+
+.tag.ativa {
+  color: var(--creme, #FFFAF3);
+  background: var(--coral, #F0633C);
+  font-weight: 700;
+}
+</style>
+COPIAR CÓDIGO
+Esse seletor não vai fazer nada por si só, porque ainda não definimos como queremos aplicar a classe. Se fôssemos aplicá-la de maneira estática, seria assim: na classe, colocaríamos, por exemplo class="tag ativa". Porém, se fizermos isso, todas as tags ficarão laranjas.
+
+<template>
+  <span class="tag ativa">
+      {{ texto }}
+    </span>
+ </template>
+COPIAR CÓDIGO
+Como podemos aplicar essa classe ativa de maneira condicional? Vamos criar uma propriedade que personaliza a adição ou não dessa classe. Assim como criamos propriedades para personalizar o conteúdo, faremos o mesmo agora, mas, deixaremos o conteúdo do atributo class condicionado.
+
+Então, aparemos ativa, criaremos uma nova propriedade, que também se chamará ativa, e ela receberá um valor booleano. Poderíamos colocar Type e dizer que é Boolean. Sobre o valor padrão, em vez de deixá-lo obrigatório, poderíamos colocar default (que significa padrão) e definí-lo como false.
+
+<script lang="ts">
+export default {
+  props: {
+      texto: { type: String, required: true }
+        ativa: { type: Boolean, default }
+    }
+}
+</script
+COPIAR CÓDIGO
+Há uma peculiaridade quando se trabalha com valores booleanos para propriedades: o padrão já é falso, logo, não precisamos colocar default false. Mesmo assim, é importante saber que ele existe, para utilizá-lo quando necessário.
+
+<script lang="ts">
+export default {
+  props: {
+      texto: { type: String, required: true }
+        ativa: { type: Boolean }
+    }
+}
+</script
+COPIAR CÓDIGO
+A sintaxe ficou mais curta, estamos especificando apenas o tipo da propriedade, então, podemos definir uma sintaxe mais simples, que é apagando o objeto type e deixando apenas Boolean.
+
+<script lang="ts">
+export default {
+  props: {
+      texto: { type: String, required: true },
+        ativa: Boolean
+    }
+}
+</script
+COPIAR CÓDIGO
+Agora que nosso componente pode receber uma propriedade chamada ativa, no span, podemos adicionar outro atributo, class. Porém, nesse caso, ele será usado com v-bind, representado pelos dois pontos :.
+
+A sintaxe que utilizaremos é específica para o atributo class quando usado em conjunto com v-bind: abrir um objeto e designar que uma classe será aplicada de maneira condicional.
+
+Nomearemos esta classe de ativa, que representa uma classe CSS. Se o valor atribuído a ela for true, por exemplo, todas as tags ficarão ativas.
+
+<template> 
+  <span class="tag" :class="{ ativa: true }">
+      {{ texto }}
+    </span>
+ </template> 
+COPIAR CÓDIGO
+Após salvar o arquivo e retornar ao navegador, notaremos que todas as tags ficaram ativas. Ou seja, passando o tipo booleano true para aquele objeto, este passará a aplicar a classe ativa. Caso o valor booleano passado seja false, a classe não é aplicada.
+
+Agora, vamos retornar ao VS Code, localizar o componente que está consumindo a tag, especificar a propriedade "ativa" como true, por exemplo e observar o que acontece.
+
+Para isso, vamos até o ConteudoPrincipal.vue e, na linha 24, onde estamos utilizando a Tag, definiremos ativa como true.
+
+  <ul v-if="ingredientes.length" class="ingredientes-sua-lista"> 
+  <1i v-for="ingrediente in ingredientes" :key="ingrediente"> 
+    <Tag :texto="ingrediente" :ativa="true" /> 
+  </li>
+ </ul>
+COPIAR CÓDIGO
+Ao salvar esse arquivo e retornar ao navegador, apenas a tag no topo da lista ficará laranja, e as demais seguem com o estilo padrão.
+
+Portanto, é possível utilizar props para personalizar os estilos de um componente, dependendo de onde ele está sendo consumido. Isso torna nosso código bastante limpo.
+
+Examinando o código, percebemos que estamos chamando a Tag, especificando seu texto e dizendo se ela está ativa ou não. Isso deixa o código muito mais limpo do que se estivéssemos utilizando classes CSS globais. Esta abordagem está mais integrada com Vue.
+
+Ainda falando sobre o código, quando temos uma prop que é booleana e queremos que o valor dela seja true, como é o nosso caso, podemos simplificar e deixar apenas ativa. O resultado será o mesmo.
+
+Últimos ajustes
+Pensando nos últimos ajustes do nosso código, um detalhe é que quando temos uma propriedade booleana e queremos que seu valor serja true, exatamente o nosso caso, podemos simplesmente apagar o =true e tirar o v-bind, deixando apenas ativa.
+
+  <ul v-if="ingredientes.length" class="ingredientes-sua-lista"> 
+  <1i v-for="ingrediente in ingredientes" :key="ingrediente"> 
+    <Tag :texto="ingrediente" ativa /> 
+  </li>
+ </ul>
+COPIAR CÓDIGO
+Podemos salvar o arquivo e tudo continuará funcionando da mesma maneira no navegador.
+
+Agora, voltando ao componente Tag.vue, notamos que a diretiva class poderia ter apenas ativa entre chaves, porque o nome da propriedade é igual ao valor dela.
+
+<template> 
+  <span class="tag" :class="{ ativa }">
+      {{ texto }}
+    </span>
+ </template>
+COPIAR CÓDIGO
+No entanto, há outra sintaxe que pode ser utilizada, em que removemos a diretiva class junto ao v-bind. O próximo passo é inserir v-bind no class que já está sendo usado para adicionar a classe "tag", tornar seu valor uma lista e manter o tag como uma string estática. Por fim, adicionaremos um novo item, que será o objeto ativa.
+
+<template> 
+  <span class="['tag', { ativa }]">
+      {{ texto }}
+    </span>
+ </template>
+COPIAR CÓDIGO
+O vue também permite essa sintaxe, onde passamos uma lista de classes. Quando é um texto estático, ele será aplicado, e quando é um objeto, terá a mesma lógica de adicionar a classe se o valor booleano passado for true.
+
+Ao salvar o arquivo e retornar ao navegador, o resultado continua o mesmo. Para garantir, recarregaremos a página com o comando "F5". tudo continua funcionando conforme o esperado.
+
+Próximos passos
+Na próxima aula, aprenderemos como adicionar comportamento para os ingredinetes que estão na parte inferior, uma vez que até agora só trabalhamos com a parte estática e os estilos.
+
+Também deixarei um desafio para você!
+
+Desafio: componentizar esta parte da sua lista. Acredito que você já adquiriu os conhecimentos necessários para implementar isso, certo?
+No próximo vídeo, já terei implementado este desafio no meu projeto. Então, aguardo você lá!
+
+@@07
+Mão na massa: criando componente SuaLista
+
+Atualmente, dentro do componente ConteudoPrincipal, temos o seguinte código no script e no template:
+<script lang="ts">
+import SelecionarIngredientes from './SelecionarIngredientes.vue';
+import Tag from './Tag.vue';
+
+export default {
+  data() {
+    return {
+      ingredientes: ['Alho', 'Manteiga', 'Orégano']
+    };
+  },
+  components: { SelecionarIngredientes, Tag }
+}
+</script>
+
+<template>
+  <main class="conteudo-principal">
+    <section>
+      <span class="subtitulo-lg sua-lista-texto">
+        Sua lista:
+      </span>
+
+      <ul v-if="ingredientes.length" class="ingredientes-sua-lista">
+        <li v-for="ingrediente in ingredientes" :key="ingrediente">
+          <Tag :texto="ingrediente" ativa />
+        </li>
+      </ul>
+
+      <p v-else class="paragrafo lista-vazia">
+        <img src="../assets/imagens/icones/lista-vazia.svg" alt="Ícone de pesquisa">
+        Sua lista está vazia, selecione ingredientes para iniciar.
+      </p>
+    </section>
+
+    <SelecionarIngredientes />
+  </main>
+</template>
+COPIAR CÓDIGO
+Note que a seção de SelecionarIngredientes já está componentizada, mas a seção da “Sua lista” não está.
+
+Essa seção parece ser um ótimo bloco de código para ser componentizado. Até agora viemos referenciando essa parte do projeto como ”Sua lista”, o que indica que essa seção até já possui um nome pelo qual pode ser chamada, o que é um bom indicativo para a criação de um componente.
+
+Dessa forma, crie um componente chamado SuaLista que encapsula essa <section>. Isso trará algumas vantagens:
+
+Se essa seção estiver em um componente próprio, ficará até mais fácil de localizar seu arquivo pelo nome SuaLista, se um dia quisermos modificar o código dessa seção;
+As lógicas referentes à lista ficam encapsuladas, como por exemplo o controle de exibição da própria lista com as diretivas v-if e v-else. Encapsular código significa agrupar lógicas que fazem sentido de estarem juntas e deixá-las em um arquivo separado (no nosso caso, um componente). Assim, o componente abstrai toda a lógica referente a essa seção, “escondendo” dos outros componentes a sua complexidade, o que nos leva à próxima vantagem;
+O código do componente ConteudoPrincipal ficará mais simples e legível. Ele terá apenas a responsabilidade de exibir os componentes SuaLista e SelecionarIngredientes, e talvez fornecer informações relevantes para eles (por meio de props).
+Um ponto de atenção: mantenha o estado ingredientes no componente ConteudoPrincipal e passe essa informação como prop para a SuaLista. Isso porque, já olhando para o futuro da aplicação, esse estado também precisará ser acessado pelo SelecionarIngredientes. Assim, os ingredientes precisam ficar em um componente que seja um pai comum ao SuaLista e ao SelecionarIngredientes. Lembre-se de usar o TypeScript para fornecer uma boa tipagem para a prop!
+
+Boa prática!
+
+Você também pode conferir as mudanças nesse commit do GitHub.
+Dentro da pasta de componentes, crie um arquivo SuaLista.vue com o código abaixo:
+
+<script lang="ts">
+import type { PropType } from 'vue';
+import Tag from './Tag.vue';
+
+export default {
+  components: { Tag },
+  props: {
+    ingredientes: { type: Array as PropType<string[]>, required: true }
+  },
+}
+</script>
+
+<template>
+  <section>
+    <span class="subtitulo-lg sua-lista-texto">
+      Sua lista:
+    </span>
+
+    <ul v-if="ingredientes.length" class="ingredientes-sua-lista">
+      <li v-for="ingrediente in ingredientes" :key="ingrediente">
+        <Tag :texto="ingrediente" ativa />
+      </li>
+    </ul>
+
+    <p v-else class="paragrafo lista-vazia">
+      <img src="../assets/imagens/icones/lista-vazia.svg" alt="Ícone de pesquisa">
+      Sua lista está vazia, selecione ingredientes para iniciar.
+    </p>
+  </section>
+</template>
+
+<style scoped>
+.sua-lista-texto {
+  color: var(--coral, #F0633C);
+  display: block;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.ingredientes-sua-lista {
+  display: flex;
+  justify-content: center;
+  gap: 1rem 1.5rem;
+  flex-wrap: wrap;
+}
+
+.lista-vazia {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+
+  color: var(--coral, #F0633C);
+  text-align: center;
+}
+</style>
+COPIAR CÓDIGO
+É o mesmo template e CSS referentes à seção da “Sua Lista”, que estavam em ConteudoPrincipal, mas também criamos uma prop chamada ingredientes. Note a tipagem Array as PropType<string[]> para essa prop: usamos a classe Array do JavaScript para especificar que é um array, mas usamos o tipo utilitário PropType<string[]> para especificar o tipo de dado carregado por esse array.
+
+Agora, em ConteudoPrincipal, modifique o código para chamar a SuaLista, passando o estado ingredientes para a prop ingredientes. O script e o template ficarão assim:
+
+<script lang="ts">
+import SelecionarIngredientes from './SelecionarIngredientes.vue';
+import SuaLista from './SuaLista.vue';
+
+export default {
+  data() {
+    return {
+      ingredientes: ['Alho', 'Manteiga', 'Orégano']
+    };
+  },
+  components: { SelecionarIngredientes, SuaLista }
+}
+</script>
+
+<template>
+  <main class="conteudo-principal">
+    <SuaLista :ingredientes="ingredientes" />
+
+    <SelecionarIngredientes />
+  </main>
+</template>
+COPIAR CÓDIGO
+Com isso, você componentizou a SuaLista, organizando melhor o projeto e facilitando sua manutenção!
+
+https://github.com/alura-cursos/cookin-up/commit/d906db6274aae19a41769b9d88b1048394aed92b
+
+@@08
+Personalizando cards
+
+Suponha que você está trabalhando em um projeto Vue que lista os filmes favoritos da pessoa usuária. Você decidiu criar um componente CardFilme para exibir as informações de um filme. Porém, você aprendeu que, para que um mesmo componente possa ser personalizado com diferentes informações, ele deve receber props.
+Para isso, você começou criando a opção props dentro do <script> do componente, que por enquanto é apenas um objeto vazio:
+
+<script lang="ts">
+export default {
+  props: {
+    
+  },
+}
+</script>
+COPIAR CÓDIGO
+Quais próximas ações você deve realizar para criar uma prop que recebe as informações de um filme?
+
+Adicionar uma propriedade no objeto props para criar uma nova prop, que pode se chamar filme, por exemplo. O valor da propriedade filme pode ser um objeto que irá configurar a prop, como o seu tipo esperado.
+ 
+Essa é uma das sintaxes corretas para definir uma prop em um componente. Você pode explorar variações dessa sintaxe na documentação.
+Alternativa correta
+Criar a seguinte interface para tipar a prop:
+    export default interface IFilme {
+      nome: number;
+        dataLancamento: Date;
+      avaliacao: number;
+    }
+ 
+Alternativa correta
+Utilizar o tipo utilitário PropType do Vue para fornecer uma rigidez maior ao tipo da prop.
+ 
+O PropType recebe como generics um tipo do TypeScript, que pode ser utilizado para especificar melhor o tipo da prop. Exemplo de uso no objeto da prop, utilizando uma interface: type: Object as PropType<IFilme>.
+Alternativa correta
+Informar que a prop não é obrigatória.
+
+@@09
+Faça como eu fiz: personalizando conteúdo e estilos
+
+Agora é a sua vez de colocar a mão na massa! Crie um componente CardCategoria e personalize as informações de cada card, utilizando props. Além disso, crie um componente Tag para reutilizar o visual das Tags de ingredientes e utilize props para personalizar seus estilos também.
+
+No componente SelecionarIngredientes, altere a <ul> de categorias para utilizar o componente CardCategoria, o qual ainda vamos criar:
+<ul class="categorias">
+  <li v-for="categoria in categorias" :key="categoria.nome">
+    <CardCategoria :categoria="categoria" />
+  </li>
+</ul>
+COPIAR CÓDIGO
+Agora, na pasta de componentes, crie um arquivo CardCategoria.vue com o seguinte código:
+
+<script lang="ts">
+import type ICategoria from '@/interfaces/ICategoria';
+import type { PropType } from 'vue';
+
+export default {
+  props: {
+    categoria: { type: Object as PropType<ICategoria>, required: true }
+  }
+}
+</script>
+
+<template>
+  <article class="categoria">
+    <header class="categoria__cabecalho">
+      <img :src="`/imagens/icones/categorias_ingredientes/${categoria.imagem}`" :alt="`Ícone de ${categoria.nome}`" class="categoria__imagem">
+
+      <h2 class="paragrafo-lg categoria__nome">{{ categoria.nome }}</h2>
+    </header>
+
+    <ul class="categoria__ingredientes">
+      <li v-for="ingrediente in categoria.ingredientes" :key="ingrediente">
+        {{ ingrediente }}
+      </li>
+    </ul>
+  </article>
+</template>
+
+<style scoped>
+.categoria {
+  width: 19.5rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: var(--branco, #FFF);
+  box-shadow: 4px 4px 10px 0px rgba(68, 68, 68, 0.05);
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.categoria__cabecalho {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.categoria__imagem {
+  width: 3.5rem;
+}
+
+.categoria__nome {
+  text-align: center;
+  color: var(--verde-medio, #3D6D4A);
+  font-weight: 700;
+}
+
+.categoria__ingredientes {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+</style>
+COPIAR CÓDIGO
+Com isso, cada card já consegue ser personalizado de acordo com a prop categoria. Mas ainda falta criarmos um componente Tag para reaproveitar os estilos dos ingredientes.
+
+Para isso, crie um componente Tag.vue com o código:
+
+<script lang="ts">
+export default {
+  props: {
+    texto: { type: String, required: true },
+    ativa: Boolean
+  }
+}
+</script>
+
+<template>
+  <span :class="['tag', { ativa }]">
+    {{ texto }}
+  </span>
+</template>
+
+<style scoped>
+.tag {
+  display: inline-block;
+  border-radius: 0.5rem;
+  min-width: 4.25rem;
+  padding: 0.5rem;
+  text-align: center;
+    transition: 0.2s;
+  color: var(--cinza);
+  background: var(--cinza-claro);
+  font-weight: 400;
+}
+
+.tag.ativa {
+  color: var(--creme, #FFFAF3);
+  background: var(--coral, #F0633C);
+  font-weight: 700;
+}
+</style>
+COPIAR CÓDIGO
+Em seguida, no componente SuaLista, use esse componente na <ul> de ingredientes, passando a prop ativa:
+
+<ul v-if="ingredientes.length" class="ingredientes-sua-lista">
+  <li v-for="ingrediente in ingredientes" :key="ingrediente">
+    <Tag :texto="ingrediente" ativa />
+  </li>
+</ul>
+COPIAR CÓDIGO
+E agora, no CardCategoria, você também pode utilizá-lo na <ul> de ingredientes:
+
+<ul class="categoria__ingredientes">
+  <li v-for="ingrediente in categoria.ingredientes" :key="ingrediente">
+    <Tag :texto="ingrediente" />
+  </li>
+</ul>
+COPIAR CÓDIGO
+Dessa forma, reutilizamos a estrutura HTML e código CSS da Tag, além de poder personalizar seus estilos com a prop ativa!
+
+@@10
+O que aprendemos?
+
+Nessa aula, você aprendeu a:
+Personalizar as informações dos cards de categorias com props:
+Utilizamos a opção props de um componente para receber informações do componente pai;
+É possível tipar essa prop com classes do JavaScript, como String, Number, Array, Object, etc;
+É possível deixar seu tipo mais rígido com o tipo utilitário PropType;
+Importar imagens dinamicamente utilizando caminhos absolutos:
+Ao utilizar o v-bind no src de uma imagem, não conseguimos mais utilizar caminhos relativos. Assim, podemos utilizar caminhos absolutos, iniciando com uma barra (/), e assim iremos referenciar a pasta public;
+Utilizar props para personalizar estilos de um componente:
+Criamos uma prop booleana ativa e a utilizamos em conjunto com uma sintaxe especial que o Vue fornece quando utilizamos o atributo class com o v-bind:
+:class="{ 'nome-da-classe': valorBooleano }";
+Uma variação dessa sintaxe é passar uma lista:
+:class="['classe-estatica', { 'classe-dinamica': valorBooleano }]".
