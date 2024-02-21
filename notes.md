@@ -3510,3 +3510,1148 @@ Criamos uma prop booleana ativa e a utilizamos em conjunto com uma sintaxe espec
 :class="{ 'nome-da-classe': valorBooleano }";
 Uma variação dessa sintaxe é passar uma lista:
 :class="['classe-estatica', { 'classe-dinamica': valorBooleano }]".
+
+#### 21/02/2024
+
+@04-Emitindo eventos
+
+@@01
+Projeto da aula anterior
+
+Caso deseje, você pode baixar o projeto da aula anterior ou visualizar os arquivos no GitHub.
+Bons estudos!
+
+https://github.com/alura-cursos/cookin-up/archive/refs/heads/aula-3.zip
+
+https://github.com/alura-cursos/cookin-up/tree/aula-3
+
+@@02
+Controlando visual com estado
+
+Já conseguimos personalizar o estilo da tag dependendo de onde ela é utilizada. O projeto está aberto no navegador e percebemos o uso da cor cinza na parte de seleção de ingredientes, enquanto a parte da lista, no topo, permanece laranja.
+Além disso, já implementamos o desafio que propusemos para você no código: a componentização da parte da lista. E agora, qual o próximo passo?
+
+Ao consultar o Figma, identificamos que ainda falta implementar a funcionalidade dos ingredientes que estão na parte dos cartões de categoria.
+
+Qual é a funcionalidade esperada? Quando um ingrediente que não está selecionado for clicado, ele deve ficar selecionado, exibir a cor laranja e ser adicionado à nossa lista. Conforme clicamos em cada ingrediente, eles vão sendo adicionados. E se clicarmos em um ingrediente que já está na lista, ele deve ser removido e voltar à cor cinza.
+
+Implementando a Seleção de Ingredientes
+Vamos quebrar esse problema em duas partes. A primeira delas será mudar a cor dos ingredientes quando clicarmos neles. Portanto, ao clicar, ele deve mudar para laranja e ao clicar novamente, deve retornar à sua cor original, o cinza.
+
+Vamos analisar no código como podemos alcançar essa solução. No VS Code, no explorador lateral, vamos para o local onde a tag do ingrediente está sendo utilizada: no componente de cartão de categoria (CardCategoria.vue).
+
+Em seu interior, temos um comando <ul> que repete várias <li> e cada <li> chama um componente de tag. Para ter aquela dinâmica de clicar em um desses ingredientes e mudar o visual, precisaremos criar um estado.
+
+Sempre que há uma mudança dinâmica na tela de acordo com alguma ação, isso sugere potencialmente a criação de um estado, certo? Além disso, vamos precisar de um estado para cada ingrediente, mostrando se está selecionado ou não. Por exemplo, poderíamos nomear esse estado como "selecionado".
+
+Para fazer isso, precisaremos criar um novo arquivo de componente. Não podemos criar um estado dentro do comando <li>, por exemplo, porque esse estado depende de cada um dos ingredientes.
+
+No VS Code, vemos que já estamos utilizando a tag para criar os ingredientes. Então, criaremos um novo componente que se baseia nessa tag. Vamos cortar com "Ctrl+X" a linha dessa tag localizada no <template>, vista abaixo.
+
+<template>
+  // Código omitido
+        <Tag :texto="ingrediente" />
+  // Código omitido
+</template>
+COPIAR CÓDIGO
+Pelo explorador lateral, criaremos um novo componente na pasta "components", chamado IngredienteSelecionavel.vue. Ao criar esse arquivo, nos preocupamos em dar um nome bem semântico, porque trataremos de ingredientes selecionáveis.
+
+Em seu interior, escreveremos um template e colaremos com "Ctrl+V" a tag que cortamos antes. Precisamos importar essa tag. Portanto, criaremos uma tag script no início do arquivo, com lang igual a ts.
+
+<script lang="ts">
+
+</script>
+
+<template>
+    <Tag: texto="ingrediente" />
+</template>
+COPIAR CÓDIGO
+Vamos clicar no componente Tag, usar o atalho "Ctrl+Espaço" e pressionar "Enter" na opção "TagVue". Notaremos que ele importou dentro do script, mas não completou a parte do export default {}, então escreveremos isso manualmente.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+
+}
+</script>
+
+<template>
+    <Tag: texto="ingrediente" />
+</template>
+COPIAR CÓDIGO
+Vamos tentar mais uma vez conseguir um auxílio do VS Code. Pressionaremos "Ctrl+Espaço" em Tag mais uma vez, aceitaremos a sugestão "TagVue" do VS Code e conseguiremos adicionar manualmente a estrutura do export default {}. Por fim, excluiremos a linha import Tag from './Tag.vue' duplicada.
+
+O resultado se encontra abaixo.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag }
+}
+</script>
+
+<template>
+    <Tag: texto="ingrediente" />
+</template>
+COPIAR CÓDIGO
+Ele também precisa ter acesso ao ingrediente. Para isso, precisamos criar uma prop, para passar a informação de ingrediente publicada pelo v-for em CardCategoria e receber aqui pelo IngredienteSelecionavel.
+
+Vamos adicionar uma nova função chamada props, que será um objeto, abaixo de components. Entre suas chaves, escreveremos uma propriedade chamada ingrediente, abriremos um objeto para o valor dela, dentro do qual definimos o tipo String (com S maiúsculo) e diremos que é required (ou seja, obrigatório). Portanto, required com o valor true.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag },
+    props: {
+        ingrediente: { type: String, required: true }
+    }
+}
+</script>
+
+<template>
+    <Tag: texto="ingrediente" />
+</template>
+COPIAR CÓDIGO
+Perfeito. Os erros desapareceram. Formataremos o arquivo com "Ctrl+Shift+F" e o salvaremos.
+
+Em CardCategoria, buscaremos a <li> do ingrediente, na qual removemos a linha <Tag: texto="ingrediente" />. Em seu interior, chamaremos o IngredienteSelecionavel como uma tag única — ou seja, fechada em si mesma.
+
+Precisamos passar a prop, então, faremos "Ctrl+Espaço" antes do fechamento da tag e passaremos o :ingrediente="ingrediente".
+
+<template>
+  <article class="categoria">
+    // Código omitido
+
+    <ul class="categoria__ingredientes">
+      <li v-for="ingrediente in categoria.ingredientes" :key="ingrediente">
+        <IngredienteSelecionavel :ingrediente="ingrediente" />
+      </li>
+    </ul>
+  </article>
+</template>
+COPIAR CÓDIGO
+O código já deve estar funcionando como antes. Vamos salvar o arquivo, voltar ao navegador e ver o projeto. Parece que não há nenhum problema.
+
+Agora temos a infraestrutura correta para criarmos um estado para esse IngredienteSelecionavel, que dirá se a tag está selecionada ou não.
+
+Voltando ao IngredienteSelecionavel.vue abaixo do objeto props, adicionaremos a opção data() com um bloco de chaves. Entre essas chaves, retornamos um objeto onde cada propriedade será um estado.
+
+Chamaremos o estado de selecionado. Diremos que seu valor inicial será false, pois na parte inferior dos cartões de categorias, cada ingrediente começa como não selecionado. É só depois que vamos alterar seu valor.
+
+E aí está a jogada. Descendo o código até a tag do template, à direita de :texto="ingrediente", colocaremos a prop de ativa (ou seja, :ativa) com o valor do estado selecionado entre aspas duplas.
+
+É interessante que possamos definir o valor de uma prop a partir de um estado. Isso significa que, se o estado selecionado mudar de false para true, a prop ficará ativa e a tag terá o visual de ativa.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag },
+    props: {
+        ingrediente: { type: String, required: true }
+    },
+    data() {
+        return {
+            selecionado: false
+        }
+    }
+}
+</script>
+
+<template>
+    <Tag: texto="ingrediente" :ativa="selecionado" />
+</template>
+COPIAR CÓDIGO
+Para finalizar alguns detalhes deste componente, colocaremos um botão ao redor dessa tag por meio de um <button>. Faz sentido semanticamente que seja um botão.
+
+Para testarmos se essa prop vai mudar de visual, precisamos ser capazes de testar esse botão. Teclaremos "Enter" duas vezes à esquerda do sinal de maior no final da tag de abertura desse <button> e adicionaremos uma class (classe) de ingrediente nele.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag },
+    props: {
+        ingrediente: { type: String, required: true }
+    },
+    data() {
+        return {
+            selecionado: false
+        }
+    }
+}
+</script>
+
+<template>
+    <button
+        class="ingrediente"
+    >
+        <Tag: texto="ingrediente" :ativa="selecionado" />
+    </button>
+</template>
+COPIAR CÓDIGO
+Abaixo dessa classe, implementaremos uma nova sintaxe, que será v-on:click. Esta é uma diretiva do Vue que permite escutar eventos do DOM. Queremos escutar o evento click nesse botão e executar algo quando esse evento for disparado.
+
+À direita de "click", adicionaremos um = e abrir aspas duplas, entre as quais podemos colocar alguma instrução do JavaScript.
+
+A instrução que queremos fazer é que o estado selecionado receba o inverso dele. Portanto, se estiver false, muda para true e vice-versa. Então, selecionado receberá !selecionado.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag },
+    props: {
+        ingrediente: { type: String, required: true }
+    },
+    data() {
+        return {
+            selecionado: false
+        }
+    }
+}
+</script>
+
+<template>
+    <button
+        class="ingrediente"
+        v-on:click="selecionado = !selecionado"
+    >
+        <Tag: texto="ingrediente" :ativa="selecionado" />
+    </button>
+</template>
+COPIAR CÓDIGO
+Vamos testar isso. Salvaremos esse arquivo e voltaremos ao navegador. Se clicarmos em "Farinha de trigo", a cor de preenchimento deste ingrediente muda sua cor de cinza para laranja.
+
+Já conseguimos adicionar um comportamento dinâmico a esses ingredientes dos cartões de categorias. Isso não afetou os ingredientes que estão na nossa lista, porque se trata de um componente separado.
+
+Voltando ao código, precisamoso fazer alguns ajustes finais. Abaixo de <template> adicionaremos um estilo com a tag <style scoped>. Entre sua abertura e seu fechamento, adicionaremos a classe .ingrediente com um par de chaves.
+
+Entre estas, colocaremos também o cursor: pointer.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag },
+    props: {
+        ingrediente: { type: String, required: true }
+    },
+    data() {
+        return {
+            selecionado: false
+        }
+    }
+}
+</script>
+
+<template>
+    <button
+        class="ingrediente"
+        v-on:click="selecionado = !selecionado"
+    >
+        <Tag: texto="ingrediente" :ativa="selecionado" />
+    </button>
+</template>
+
+<style scoped>
+.ingrediente {
+    cursor: pointer;
+}
+</style>
+COPIAR CÓDIGO
+Salvaremos o arquivo e voltaremos ao navegador. Veremos que o cursor se transforma em uma "mãozinha" quando passamos sobre algum ingrediente na aplicação. Então, já está funcionando.
+
+Há apenas mais um recurso no VSCode que devemos adicionar, relacionado à acessibilidade. Dentro do <template>, abaixo do v-on, vamos inserir :aria-pressed, e definir o estado como "selecionado".
+
+Isso é uma boa prática do HTML: um atributo que nós inserimos em botões para indicar visualmente se estão selecionados ou não, que é o significado de pressed (pressionado).
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag },
+    props: {
+        ingrediente: { type: String, required: true }
+    },
+    data() {
+        return {
+            selecionado: false
+        }
+    }
+}
+</script>
+
+<template>
+    <button
+        class="ingrediente"
+        v-on:click="selecionado = !selecionado"
+        :aria-pressed="selecionado"
+    >
+        <Tag: texto="ingrediente" :ativa="selecionado" />
+    </button>
+</template>
+
+<style scoped>
+.ingrediente {
+    cursor: pointer;
+}
+</style>
+COPIAR CÓDIGO
+Dessa forma, concluímos o conteúdo do componente.
+
+É interessante ver essa estratégia de criar um novo componente a partir de um que já existia, que era o Tag. Dessa forma, conseguimos personalizar ainda mais o HTML. Adicionamos um botão na Tag, inserimos um novo estilo CSS, o cursor: pointer, e mais importante, adicionamos a lógica para selecionar ou não esse ingrediente.
+
+Para finalizar: a diretivav-on, que permite escutar eventos do DOM, é muito comum. Logo, existe um atalho para essa sintaxe de v-on:. Nós podemos substituí-la por um arroba (@).
+
+Isso torna o código @click, mantendo a instrução que já tínhamos escrito.
+
+<script lang="ts">
+    // Código omitido
+</script>
+
+<template>
+    <button
+        class="ingrediente"
+        @click="selecionado = !selecionado"
+        :aria-pressed="selecionado"
+    >
+        <Tag: texto="ingrediente" :ativa="selecionado" />
+    </button>
+</template>
+
+<style scoped>
+.ingrediente {
+    cursor: pointer;
+}
+</style>
+COPIAR CÓDIGO
+Após salvar esse arquivo e voltar ao navegador, vamos conferir se tudo está funcionando como antes. Vamos clicar nos ingredientes, e eles serão selecionados. Ao clicar novamente, eles serão desselecionados.
+
+Resolvemos a primeira parte do problema. No próximo vídeo, vamos implementar a adição ou remoção desses ingredientes na lista, de acordo com a seleção ou não deles. Te esperamos lá.
+
+https://www.figma.com/file/0YlJl7HQ7flDoEZZ8tB88A/Cookin'UP-%7C-Vue-1?node-id=1901%3A2&mode=dev
+
+@@03
+Adicionando ingredientes na lista
+
+Temos um novo componente chamado IngredienteSelecionavel, utilizado para os cartões. Ele encapsula a lógica de selecionar e desselecionar quando clicamos nele. Isso já está funcionando, mas ainda falta a parte de adicionar ou remover esse ingrediente na lista, dependendo de qual ingrediente estamos clicando.
+Implementando a Comunicação entre Componentes
+Vamos dar uma olhada em como podemos implementar isso no VS Code. Ao abri-lo, vamos acessar o arquivo do componente ConteudoPrincipal, que é onde a lista de ingredientes reside, dentro do data().
+
+Agora, nós sabemos que é um estado. Portanto, se conseguirmos adicionar um ingrediente nesta lista, ele será renderizado na tela apropriadamente.
+
+Mas, de onde vai partir essa mudança? Será do nosso IngredienteSelecionavel, o componente que criamos no vídeo anterior. Vamos acessá-lo.
+
+Mas existe todo um caminho para essa comunicação acontecer. Queremos que o IngredienteSelecionavel altere o estado de um componente que é seu pai. Se olharmos o caminho feito no <template> de ConteudoPrincipal.vue, ele vai consumir SelecionarIngredientes.
+
+Vamos abrir também uma guia com esse arquivo SelecionarIngredientes.vue. Esse componente consome o CardCategoria, portanto, vamos abrir uma guia com este também.
+
+Por fim, o CardCategoria consome o IngredienteSelecionavel que já está aberto. Depois disso, vamos fechar o explorador e verificar que temos quatro guias abertas:
+
+ConteudoPrincipal.vue
+SelecionarIngredientes.vue
+CardCategoria.vue
+IngredienteSelecionavel.vue
+Esse é o caminho a ser feito para a comunicação. Já vimos que as Props são uma forma de passar informações do componente pai para o filho, inclusive conseguimos passar estados por meio delas. Este é o meio padrão de comunicação nos Frameworks front-end.
+
+Mas, o que acontece com o componente filho que quer alterar o estado de um componente pai? No nosso caso, será de um componente bem ancestral, na verdade, será o pai do pai do seu pai.
+
+Para fazer isso, vamos acessar o arquivo IngredienteSelecionavel.vue e implementar o código para entender melhor.
+
+Queremos que a mudança desse estado aconteça quando clicarmos no botão do IngredienteSelecionavel. Então, vamos ter que adicionar mais algumas instruções dentro do @click, criado anteriormente.
+
+Para organizar o código, vamos criar um método separado, dentro do objeto export default. Abaixo das chaves do data(), adicionaremos a opção methods. Esta é um objeto, dentro do qual vamos chamar a função aoClicar(), em CamelCase (ou seja, com o "C" maiúsculo), e um bloco de chaves.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag },
+    props: {
+        ingrediente: { type: String, required: true }
+    },
+    data() {
+        return {
+            selecionado: false
+        }
+    },
+    methods: {
+        aoClicar() {
+        
+        }
+    }
+}
+</script>
+
+// Código omitido
+COPIAR CÓDIGO
+Em seguida, vamos recortar o código selecionado = !selecionado (selecionado recebe o inverso de selecionado) que havíamos escrito no @click.
+
+selecionado = !selecionado
+COPIAR CÓDIGO
+No lugar dessa instrução, escreveremos aoClicar(). Aqui, podemos passar os parênteses ou não. Podemos passar uma instrução, mas o Vue também aceita passarmos uma função de callback sem os parênteses. Vamos deixá-los sem parênteses porque torna o código mais sucinto.
+
+Vamos colar o código copiado entre as chaves de aoClicar(), dentro da função methods. Precisaremos fazer um ajuste nele, pois, quando estamos no <script>, precisamos adicionar this antes da informação para referenciar dados do próprio script. Então ficará: this.selecionado = !this.selecionado.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag },
+    props: {
+        ingrediente: { type: String, required: true }
+    },
+    data() {
+        return {
+            selecionado: false
+        }
+    },
+    methods: {
+        aoClicar() {
+            this.selecionado = !this.selecionado
+        }
+    }
+}
+</script>
+
+<template>
+    <button
+        class="ingrediente"
+        @click="aoClicar"
+        :aria-pressed="selecionado"
+    >
+        <Tag: texto="ingrediente" :ativa="selecionado" />
+    </button>
+</template>
+
+<style scoped>
+.ingrediente {
+    cursor: pointer;
+}
+</style>
+COPIAR CÓDIGO
+Salvaremos o arquivo, voltaremos ao navegador e veremos que continua funcionando perfeitamente. Voltaremos no código, vamos implementar a passagem da informação para o componente pai.
+
+Para fazer isso, vamos escrever if(this.selecionado) e um bloco de chaves em aoClicar(), abaixo da linha this.selecionado = !this.selecionado. Com isso, queremos emitir um evento ao clicar no botão e selecionar o ingrediente. Entre as chaves escreveremos this.$emit(). Vamos utilizar essa função especial disponibilizada pelo componente.
+
+Entre os seus parênteses, vamos passar uma string entre aspas simples, chamada adicionarIngrediente, e o segundo parâmetro será o dado que este evento pode carregar. Então, escreveremos this.ingrediente, que já é uma informação disponível pela prop.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag },
+    props: {
+        ingrediente: { type: String, required: true }
+    },
+    data() {
+        return {
+            selecionado: false
+        }
+    },
+    methods: {
+        aoClicar() {
+            this.selecionado = !this.selecionado
+            
+            if (this.selecionado) {
+                this.$emit('adicionarIngrediente', this.ingrediente);
+            }
+        }
+    }
+}
+</script>
+
+// Código omitido
+COPIAR CÓDIGO
+Vamos entender melhor esse código?
+
+Com essa sintaxe, estamos emitindo um evento personalizado. Ele funciona de uma maneira bastante similar aos eventos do DOM, como um evento de clique, por exemplo, mas este é um evento ao qual atribuímos um nome personalizado. Ele vai se chamar adicionarIngrediente e poderemos escutar esse evento do componente pai que está consumindo o ingrediente selecionado. Veremos como isso acontece em breve.
+
+O segundo parâmetro this.ingrediente é o dado que o evento pode carregar. Ele pode carregar praticamente qualquer tipo de dado do JavaScript — neste caso, estamos passando o próprio ingrediente, que é uma string. Agora, teremos que capturar esse dado de alguma forma no componente que está consumindo este evento.
+
+Salvaremos o arquivo e antes de dispararmos o evento no outro componente, vamos implementar uma boa prática ao utilizar eventos personalizados no Vue. Faremos isso adicionando mais uma opção ao export default, abaixo das chaves de methods.
+
+Ela se chama emits e recebe uma lista declarando os eventos personalizados que este componente é capaz de emitir. Dentro dessa lista, vamos incluir uma string com o nome adicionarIngrediente.
+
+É uma boa prática fazer uma cópia do nome com 'Ctrl+C" e colar com "Ctrl+V" para garantir a consistência. Ao fazer isso, temos uma grande ajuda do TypeScript. Se tentarmos usar o this.$emit passando o nome de um evento não previsto, ele apontará erros, com linhas vermelhas aparecendo, o que é muito útil para prevenir erros.
+
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+    components: { Tag },
+    props: {
+        ingrediente: { type: String, required: true }
+    },
+    data() {
+        return {
+            selecionado: false
+        }
+    },
+    methods: {
+        aoClicar() {
+            this.selecionado = !this.selecionado
+            
+            if (this.selecionado) {
+                this.$emit('adicionarIngrediente', this.ingrediente);
+            }
+        }
+    },
+    emits: ['adicionarIngrediente']
+}
+</script>
+
+// Código omitido
+COPIAR CÓDIGO
+Salvaremos esse arquivo também e vamos acessar o componente CardCategoria que está consumindo, o qual deixamos aberto em outra aba. Dentro da <li> do seu <template>, ele está chamando IngredienteSelecionavel. Então, o que faremos?
+
+Vamos pressionar "Enter" para separar a tag <IngredienteSelecionavel /> para que fique com a formatação abaixo.
+
+    <IngredienteSelecionavel
+        :ingrediente="ingrediente"
+        
+    />
+COPIAR CÓDIGO
+Na linha vazia abaixo de :ingrediente="ingrediente", adicionaremos um @adicionar. Com isso, o nome do evento @adicionar-ingrediente que emitimos no componente filho está aparecendo na lista de sugestões.
+
+Vamos pressionar "Enter" para adicionar essa sugestão do VS Code. Observaremos que essa referência usa aquela sintaxe que já vimos anteriormente, equivalente ao v-on:. Ou seja, essa sintaxe para escutar um evento serve não apenas para eventos do DOM, mas também para eventos personalizados que criamos.
+
+    <IngredienteSelecionavel
+        :ingrediente="ingrediente"
+        @adicionar-ingrediente=""
+    />
+COPIAR CÓDIGO
+Dentro das aspas duplas, adicionaremos a ação desejada. Como ainda precisamos alterar o estado de ConteudoPrincipal e incluir mais alguns ingredientes, vamos reemitir esse evento. A maneira de fazer isso é escrevendo $emit(). No caso do <template>, não precisamos colocar o this., podemos ir diretamente para $emit. Entre os parênteses, vamos reemitir um evento chamado adicionarIngrediente entre aspas simples, mais uma vez.
+
+O segundo parâmetro tem que ser o ingrediente que vem junto com o evento emitido pelo componente filho. Para acessar esses dados de evento podemos utilizar outra sintaxe: $event. Essa é uma das formas de acessar o dado. Esse $event é o ingrediente que está sendo carregado pelo evento.
+
+// Código omitido
+
+<template>
+  <article class="categoria">
+    <header class="categoria__cabecalho">
+      <img :src="`/imagens/icones/categorias_ingredientes/${categoria.imagem}`" alt="" class="categoria__imagem">
+
+      <h2 class="paragrafo-lg categoria__nome">{{ categoria.nome }}</h2>
+    </header>
+
+    <ul class="categoria__ingredientes">
+      <li v-for="ingrediente in categoria.ingredientes" :key="ingrediente">
+        <IngredienteSelecionavel
+            :ingrediente="ingrediente"
+            @adicionar-ingrediente="$emit('adicionarIngrediente', $event)"
+        />
+      </li>
+    </ul>
+  </article>
+</template>
+
+// Código omitido
+COPIAR CÓDIGO
+Por fim, com boa prática, vamos acessar o <script> na linha abaixo de components e colocar um emits passando um arranjo com o nome adicionarIngrediente entre aspas simples. Com isso, teremos a sugestão do VS Code no arquivo de selecionar ingredientes.
+
+<script lang="ts">
+import type ICategoria from '@/interfaces/ICategoria';
+import type { PropType } from 'vue';
+import Tag from './Tag.vue';
+import IngredienteSelecionavel from './IngredienteSelecionavel.vue';
+
+export default {
+  props: {
+    categoria: { type: Object as PropType<ICategoria>, required: true }
+  },
+  components: { Tag, IngredienteSelecionavel },
+  emits: ['adicionarIngrediente']
+}
+</script>
+
+// Código omitido
+COPIAR CÓDIGO
+Só falta escutarmos esse evento em SelecionarIngredientes. Após salvar o arquivo atual, acessaremos o SelecionarIngredientes.vue, no qual vamos fazer o mesmo processo.
+
+Vamos formatar a tag CardCategoria e colocar @adicionar-ingrediente abaixo da linha :categoria="categoria".
+
+Precisaremos reemitir mais uma vez. Em breve falaremos um pouco sobre esse problema de repetição de código, mas nós temos que fazer isso por enquanto. O @adicionar-ingrediente receberá $emit(), em cujos parênteses passaremos novamente adicionarIngrediente entre aspas simples, e usaremos $event para repassar o ingrediente que está vindo pelo evento.
+
+// Código omitido
+<template>
+  <section class="selecionar-ingredientes">
+    <h1 class="cabecalho titulo-ingredientes">Ingredientes</h1>
+
+    <p class="paragrafo-lg instrucoes">
+      Selecione abaixo os ingredientes que você quer usar nesta receita:
+    </p>
+
+    <ul class="categorias">
+      <li v-for="categoria in categorias" :key="categoria.nome">
+        <CardCategoria
+          :categoria="categoria"
+          @adicionar-ingrediente="$emit('adicionarIngrediente', $event)"
+        />
+      </li>
+    </ul>
+
+    <p class="paragrafo dica">
+      *Atenção: consideramos que você tem em casa sal, pimenta e água.
+    </p>
+
+    <BotaoPrincipal texto="Buscar receitas!" />
+  </section>
+</template>
+COPIAR CÓDIGO
+No export default, abaixo da linha components vamos colocar um emits mais uma vez e passar o arranjo com adicionar ingrediente entre aspas simples.
+
+<script lang="ts">
+// Código omitido
+
+export default {
+  data() {
+    return {
+      categorias: [] as ICategoria[]
+    };
+  },
+  async created() {
+    this.categorias = await obterCategorias();
+  },
+  components: { CardCategoria },
+  emits: ['adicionarIngrediente']
+}
+</script>
+
+// Código omitido
+COPIAR CÓDIGO
+Finalmente, salvaremos esse arquivo e iremos para o arquivo ConteudoPrincipal.vue, no qual está de fato o estado de ingredientes. Descendo até a tag <SelecionarIngredientes> dentro do <template> adicionaremos o @adicionar-ingrediente.
+
+Desta vez, não vamos reemitir, pois tudo o que queremos fazer é modificar o estado de ingredientes. Para isso, adicionaremos mais um.
+
+Portanto, @adicionar-ingrediente receberá ingredientes.push(), o método JavaScript para adicionar um item na lista. Entre os parênteses, vamos colocar o $event, que teoricamente é o mesmo ingrediente que está vindo do componente mais baixo.
+
+// Código omitido
+
+<template>
+  <main class="conteudo-principal">
+    <SuaLista :ingredientes="ingredientes" />
+
+    <SelecionarIngredientes
+      @adicionar-ingrediente="ingredientes.push($event)"
+    />
+  </main>
+</template>
+
+// Código omitido
+COPIAR CÓDIGO
+Vamos verificar se essa conexão inteira vai funcionar. Salvaremos o arquivo e retornaremos ao navegador. Ao clicar em "ovos" ele aparecerá na nossa lista e será colorido de laranja. Podemos constatar que a comunicação funcionou mesmo. Se clicarmos em "queijo", "leite" ou "manteiga", tudo está sendo adicionado corretamente.
+
+Retornando ao VS Code, vamos fazer um ajuste. Queremos que a lista de ingredientes comece vazia, pois isso é o que o Figma nos orienta a fazer.
+
+No export default, esvaziaremos a lista de ingredientes.
+
+export default {
+  data() {
+    return {
+      ingredientes: []
+    };
+  },
+  // Código omitido
+}
+COPIAR CÓDIGO
+Com isso, está aparecendo uma linha vermelha no $event de ingredientes.push($event), indicando que não é possível adicionar ingredientes. Isso só está acontecendo porque precisamos tipar o estado, pois agora é uma lista vazia e o JavaScript não pode inferir os dados que essa lista irá receber.
+
+Portanto, escreveremos as string[] após o arranjo vazio.
+
+export default {
+  data() {
+    return {
+      ingredientes: [] as string[]
+    };
+  },
+  // Código omitido
+}
+COPIAR CÓDIGO
+Salvaremos o arquivo. Ainda há mais uma alteração que quero fazer neste componente: adicionar um methods abaixo de components, com uma função chamada adicionarIngrediente entre suas chaves. Para melhor organizar essa parte de adição, abriremos um bloco de parênteses e chaves.
+
+Em seguida, recortaremos o ingredientes.push($event) com um "Ctrl+X". Em seu lugar, invocaremos o método adicionarIngrediente, ainda entre aspas duplas.
+
+// Código omitido
+
+<template>
+  <main class="conteudo-principal">
+    <SuaLista :ingredientes="ingredientes" />
+
+    <SelecionarIngredientes
+      @adicionar-ingrediente="adicionarIngrediente"
+    />
+  </main>
+</template>
+
+// Código omitido
+COPIAR CÓDIGO
+Dentro das chaves desse método, no export default, colaremos com "Ctrl+V" o código recortado. Contudo, em vez de ingredientes, teremos this.ingredientes, e em vez de passar $event entre parênteses, vamos deletá-lo.
+
+Quando estamos utilizando uma função no methods, podemos obter o dado do evento por meio dos parâmetros. Portanto, adicionaremos um parâmetro entre os parênteses de adicionarIngrediente() nomeando-o como ingrediente para tornar o código mais legível. Vamos declarar que ingrediente é uma string.
+
+Em seguida, vamos colocar essa string ingrediente entre os parênteses do push().
+
+export default {
+  data() {
+    return {
+      ingredientes: [] as string[]
+    };
+  },
+  components: { SelecionarIngredientes, Tag, SuaLista },
+  methods: {
+    adicionarIngrediente(ingrediente: string) {
+      this.ingredientes.push(ingrediente)
+    },
+  }
+}
+COPIAR CÓDIGO
+Isso deve fazer com que a função funcione da mesma forma. Após salvar o arquivo e retornar ao navegador, atualizaremos a página para garantir. Agora, a lista se inicia vazia e, quando algum ingrediente é clicado, ele é adicionado com sucesso.
+
+Repetição de Códigos
+Sobre a repetição de códigos no VS Code, como, por exemplo, ficar reemitindo o evento, de fato existe uma solução que resolve este problema. No entanto, isso está um pouco fora do escopo do nosso curso, porque já começa a adentrar na esfera de gerenciamento de estado global. Você terá a oportunidade de explorar essa questão em cursos futuros, tudo bem?
+
+Desafios
+Voltando para o nosso projeto, conseguimos implementar a adição do ingrediente quando clicamos nele. No entanto, se clicarmos em um ingrediente que já selecionamos, ele não é removido da lista. Deixaremos essa implementação como desafio para você, que já possui os conhecimentos necessários para realizar essa tarefa.
+
+Além disso, desafiamos você a finalizar a página. Se observarmos o Figma, precisamos implementar a parte de buscar as receitas e também de incluir o rodapé. Basta criar alguns componentes para isso.
+
+Em seguida, com esses desafios implementados no código, iniciaremos nosso aprendizado sobre como transitar desta primeira tela para a segunda. Será um conteúdo muito interessante, então aguardamos você lá.
+
+@@04
+Mão na massa: removendo ingrediente
+
+Seu desafio agora é finalizar a funcionalidade dos ingredientes selecionáveis! Já implementamos a adição de um ingrediente selecionado na SuaLista com ajuda dos eventos personalizados.
+Usando a mesma estratégia, escreva um código que cumpra os requisitos a seguir:
+
+Quando um ingrediente já selecionado for clicado novamente, emita um evento personalizado chamado 'removerIngrediente', que deve chegar até a SuaLista;
+Na SuaLista, escute esse evento e remova o ingrediente do estado ingredientes.
+Boa prática!
+
+Você também pode conferir as mudanças nesse commit do GitHub.
+Em IngredienteSelecionavel, altere as opções methods e emits de acordo com o código abaixo:
+
+methods: {
+    aoClicar() {
+      this.selecionado = !this.selecionado
+
+      if (this.selecionado) {
+        this.$emit('adicionarIngrediente', this.ingrediente)
+      } else {
+        this.$emit('removerIngrediente', this.ingrediente);
+      }
+    }
+  },
+  emits: ['adicionarIngrediente', 'removerIngrediente']
+COPIAR CÓDIGO
+O evento 'removerIngrediente' será emitido apenas quando o ingrediente for clicado e quando seu novo estado selecionado for false.
+
+Em seguida, em CardCategoria, escute o evento e o re-emita:
+
+<IngredienteSelecionavel
+  :ingrediente="ingrediente"
+  @adicionar-ingrediente="$emit('adicionarIngrediente', $event)"
+  @remover-ingrediente="$emit('removerIngrediente', $event)"
+/>
+COPIAR CÓDIGO
+Faça o mesmo em SelecionarIngredientes:
+
+<CardCategoria
+  :categoria="categoria"
+  @adicionar-ingrediente="$emit('adicionarIngrediente', $event)"
+  @remover-ingrediente="$emit('removerIngrediente', $event)"
+/>
+COPIAR CÓDIGO
+Nos dois componentes CardCategoria e SelecionarIngredientes, não esqueça de adicionar o evento 'removerIngrediente' na opção emits.
+Por fim, em ConteudoPrincipal, escute o evento pela última vez e registre uma função chamada removerIngrediente(), que ainda será criada:
+
+<SelecionarIngredientes
+  @adicionar-ingrediente="adicionarIngrediente"
+  @remover-ingrediente="removerIngrediente"
+/>
+COPIAR CÓDIGO
+Agora só falta criar a função removerIngrediente() no methods do ConteudoPrincipal:
+
+removerIngrediente(ingrediente: string) {
+  this.ingredientes = this.ingredientes.filter(iLista => ingrediente !== iLista);
+},
+COPIAR CÓDIGO
+Pronto! O IngredienteSelecionavel agora consegue adicionar e remover ingredientes da SuaLista. Finalizamos suas funcionalidades.
+
+https://github.com/alura-cursos/cookin-up/commit/aff16f64a6cc24ad9cb8c7d2462e893a900533f1
+
+@@05
+Mão na massa: finalizando a primeira página
+
+Agora falta finalizarmos a primeira página do Cookin’ Up!
+Implemente o botão de “Buscar receitas!” e o Rodapé do final da página. Você pode criar novos componentes chamados BotaoPrincipal e Rodape. Implemente apenas o visual do botão, e não sua funcionalidade.
+
+Boa prática!
+
+https://caelum-online-public.s3.amazonaws.com/3397-vue/Aula4-img1.png
+
+Você também pode conferir as mudanças nesse commit do GitHub.
+Primeiro, crie um componente BotaoPrincipal com o seguinte código:
+
+<script lang="ts">
+export default {
+  props: {
+    texto: { type: String, required: true },
+  }
+}
+</script>
+
+<template>
+  <button class="paragrafo-lg botao-principal">
+    {{ texto }}
+  </button>
+</template>
+
+<style scoped>
+.botao-principal {
+  width: 19.5rem;
+  height: 3.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-weight: 700;
+  color: var(--creme, #FFFAF3);
+  background: var(--coral, #F0633C);
+  box-shadow: 4px 4px 15px 0px rgba(255, 115, 76, 0.25);
+  cursor: pointer;
+  transition: 0.2s;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.botao-principal:hover {
+  background: var(--ocre-hover, #D1451E);
+}
+</style>
+COPIAR CÓDIGO
+Note que passamos uma prop texto para poder personalizar seu texto.
+
+Em seguida, use esse componente em SelecionarIngredientes, no final da <section>:
+
+<!-- código omitido... -->
+
+  <p class="paragrafo dica">
+    *Atenção: consideramos que você tem em casa sal, pimenta e água.
+  </p>
+
+  <BotaoPrincipal texto="Buscar receitas!" />
+</section>
+
+<!-- código omitido... -->
+COPIAR CÓDIGO
+Não esqueça de importá-lo no <script>.
+Na sequência, crie um componente Rodape:
+
+<template>
+  <footer class="rodape paragrafo">
+    Desenvolvido por Alura | 2023 - Projeto fictício sem fins comerciais.
+  </footer>
+</template>
+
+<style scoped>
+.rodape {
+  background: var(--verde-escuro, #263A29);
+  padding: 1.5rem 7.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media only screen and (max-width: 1300px) {
+  .rodape {
+    padding: 1.5rem 3.75rem;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .rodape {
+    padding: 1.5rem;
+  }
+}
+</style>
+COPIAR CÓDIGO
+Por fim, utilize-o em App.vue:
+
+<template>
+  <Banner />
+  <ConteudoPrincipal />
+  <Rodape /> <!-- Adicionado -->
+</template>
+COPIAR CÓDIGO
+Com isso, você finalizou a primeira página do projeto!
+
+https://github.com/alura-cursos/cookin-up/commit/a011834838e281635e39604d89aa83ca0fdae254
+
+@@06
+Para saber mais: Options API e Composition API
+
+Sabia que, até agora, nós estivemos utilizando um dos dois estilos possíveis de desenvolvimento no Vue?
+O estilo de API que estamos usando se chama Options API (API de Opções, em português), e nela nós usamos opções para definir a lógica de um componente, como data(), methods, props, created(), entre outras.
+
+Porém, existe um outro estilo de API que também é usado no Vue, que se chama Composition API (API de Composição, em português). Esse estilo é um recurso nativo no Vue 3 e no Vue 2.7.
+
+Vamos entender um pouco a diferença entre esses dois estilos? Vamos usar o código atual do <script> do ConteudoPrincipal como exemplo:
+
+<script lang="ts">
+import SelecionarIngredientes from './SelecionarIngredientes.vue';
+import SuaLista from './SuaLista.vue';
+
+export default {
+  data() {
+    return {
+      ingredientes: [] as string[]
+    };
+  },
+  components: { SelecionarIngredientes, SuaLista },
+  methods: {
+    adicionarIngrediente(ingrediente: string) {
+      this.ingredientes.push(ingrediente)
+    },
+    removerIngrediente(ingrediente: string) {
+      this.ingredientes = this.ingredientes.filter(iLista => ingrediente !== iLista);
+    },
+  }
+}
+</script>
+COPIAR CÓDIGO
+Para usar a Composition API em um componente, o ponto de entrada é o método chamado setup(), disponível como uma das propriedades do objeto do componente (o objeto do export default). Enquanto as propriedades que viemos usando até agora fazem parte da Options API, o setup() é o único método que faz parte da Composition API.
+
+Vamos conferir o equivalente ao código acima usando a Composition API:
+
+<script lang="ts">
+import { ref } from 'vue';
+import SelecionarIngredientes from './SelecionarIngredientes.vue';
+import SuaLista from './SuaLista.vue';
+
+export default {
+  setup() {
+    const ingredientes = ref<string[]>([]);
+
+    function adicionarIngrediente(ingrediente: string) {
+      ingredientes.value.push(ingrediente)
+    }
+    function removerIngrediente(ingrediente: string) {
+      ingredientes.value = ingredientes.value.filter(iLista => ingrediente !== iLista);
+    }
+
+    return {
+      ingredientes,
+      adicionarIngrediente,
+      removerIngrediente
+    }
+  },
+  components: { SelecionarIngredientes, SuaLista },
+}
+</script>
+COPIAR CÓDIGO
+Vamos passar pelos seguintes pontos para conferir as diferenças de código:
+
+Quase todas as opções do objeto foram removidas, com exceção de components. No lugar delas, foi adicionado o método setup(), o ponto de entrada da Composition API;
+O estado ingredientes agora foi definido com o código const ingredientes = ref<string[]>([]). Note que a função ref() foi importada do pacote vue. Esse método cria uma variável reativa, da mesma forma que as propriedades retornadas no data() também eram reativas. Além disso, note que é possível definir a tipagem do estado usando generics no método;
+As funções antes declaradas nos methods agora são funções normais declaradas dentro de setup();
+Para acessar ou modificar o valor do estado ingredientes, agora é necessário escrever ingredientes.value em vez de this.ingredientes;
+Por fim, o estado e as funções são retornados para o setup() dentro de um objeto. Isso vai expor essas informações para o template do componente.
+Leia a seção Why Refs? para entender por que é necessário escrever .value para acessar o valor de variáveis reativas.
+E com isso, o código acima já utiliza perfeitamente a Composition API e funciona exatamente igual a antes! Quando você já entende conceitos do Vue como estado, props, eventos, entre outros, a transição de um estilo para o outro é mais suave e facilitada.
+
+Vantagens e desvantagens
+Mas Evaldo, quais as vantagens de se usar a Composition API? Existem desvantagens em relação à Options API?
+A Options API é considerada mais fácil de entender e de se desenvolver para quem está iniciando os estudos em Vue ou em frameworks front-end no geral, pois já possui opções reservadas para diferentes funcionalidades, o que torna o código legível e bem documentado.
+
+A Composition API não possui esses blocos de separação, deixando todo o código dentro do setup(). É um estilo diferente de codificação, e pode ser preferido ou não, dependendo de quem está desenvolvendo.
+
+No entanto, um fato é que a Composition API dá mais liberdade para uso dos recursos do Vue, aumentando suas possibilidades de uso, e por esse motivo ela é mais recomendada para projetos de maior porte.
+
+Além disso, a Composition API se integra melhor com o TypeScript, além de tornar o código mais sucinto na maioria dos casos, como veremos logo abaixo.
+
+Contudo, é importante frisar que não há planos da equipe do Vue para descontinuar a Options API! No mercado, diferentes empresas usam diferentes estilos. A Options API consegue fazer praticamente tudo que a Composition API faz, salvo casos de uso muito incomuns onde realmente é necessário recorrer à Composition API.
+
+A documentação do Vue ensina todos os seus conceitos das duas formas. Uma vez que você tenha aprendido um conceito em um dos estilos, basta revisitar a página da documentação referente a esse conceito e alternar o estilo de API para aprendê-lo com outra sintaxe.
+
+Acesse a seção API Styles e a página Composition API FAQ da documentação para conferir em detalhes as diferenças entres os dois estilos.
+Além disso, da mesma forma que a documentação possui uma página ensinando a usar TypeScript com Options API, ela também possui uma que ensina a usar TypeScript com Composition API.
+Usando <script setup>
+Talvez você não tenha notado uma diferença significativa ao migrar o código da Options API para a Composition API. Na verdade, ele ficou até com algumas linhas extras!
+
+Justamente para evitar muito código repetido, a Composition API é comumente utilizada com um recurso que a deixa mais sucinta e melhora a experiência de desenvolvimento. Esse recurso é o atributo setup que pode ser adicionado no <script>.
+
+Com isso, algumas mudanças podem ser feitas no código. Confira ele reescrito:
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import SelecionarIngredientes from './SelecionarIngredientes.vue';
+import SuaLista from './SuaLista.vue';
+
+const ingredientes = ref<string[]>([]);
+
+function adicionarIngrediente(ingrediente: string) {
+  ingredientes.value.push(ingrediente)
+}
+function removerIngrediente(ingrediente: string) {
+  ingredientes.value = ingredientes.value.filter(iLista => ingrediente !== iLista);
+}
+</script>
+COPIAR CÓDIGO
+E olha só! Como mágica, o código ficou bem menor e sucinto. Vamos conferir as mudanças?
+
+Com a adição do atributo setup, não é mais necessário realizar o export default e nem escrever o método setup(). É como se agora todo o código do <script> já estivesse dentro do setup(), por baixo dos panos.
+A grande vantagem do <script setup> é não precisar mais retornar um objeto com as informações que queremos expor ao template do componente. Ao invés disso, todas as variáveis declaradas e importadas estão automaticamente disponíveis para o template, como o estado ingredientes, as funções e até mesmo os componentes!
+Note que, como os componentes agora estão disponíveis para o template, também não precisamos mais da opção components que estávamos usando até agora.
+O Vue recomenda fortemente utilizar o <script setup> ao se desenvolver com a Composition API, por tornar o código mais simples e direto. Por esse motivo, as páginas da documentação em Composition API ensinam os conceitos usando principalmente o <script setup>, mas também ensinam sem o setup quando necessário.
+
+@@07
+Adicionando pratos no pedido
+
+Ariana está implementando um projeto Vue que simula um site de pedidos de comida.
+O projeto possui um componente Pedido com um estado chamado pratosSelecionados, que é uma lista de strings. Esse componente está consumindo outro chamado CardPrato, que possui uma prop chamada prato.
+
+O código do CardPrato está assim:
+
+<script lang="ts">
+export default {
+  props: {
+    prato: { type: String, required: true }
+  },
+}
+</script>
+
+<template>
+  <section>
+    {{ prato }}
+  </section>
+</template>
+COPIAR CÓDIGO
+Ariana quer que, quando a <section> for clicada, a prop prato seja adicionada na lista pratosSelecionados, que é o estado do componente pai Pedido.
+
+Quais ações ela pode tomar para alcançar esse objetivo?
+
+Selecione 2 alternativas
+
+No CardPrato, adicionar o código @click="$emit('adicionarPrato', prato) na <section>;
+No Pedido, adicionar @adicionar-prato="pratosSelecionados.push($event)" na tag do CardPrato.
+ 
+O componente filho está emitindo o evento junto com a prop prato e o componente pai está escutando o evento e adicionando o prato corretamente.
+Alternativa correta
+No CardPrato, adicionar o código v-on:click="$emit('adicionarPrato, prato') na <section>;
+No Pedido, adicionar v-on:adicionar-prato="pratosSelecionados.push($event)" na tag do CardPrato.
+ 
+A sintaxe v-on:click é equivalente a @click. O componente filho está emitindo o evento junto com a prop prato e o componente pai está escutando o evento e adicionando o prato corretamente.
+Alternativa correta
+No CardPrato, adicionar o código @click="$emit('adicionarPrato') na <section>;
+No Pedido, adicionar @adicionar-prato="pratosSelecionados.push($event)" na tag do CardPrato.
+ 
+Alternativa correta
+No CardPrato, adicionar o código @click="this.$emit('adicionarPrato', prato) na <section>;
+No Pedido, adicionar @adicionar-prato="pratosSelecionados.push($event)" na tag do CardPrato.
+
+@@08
+Faça como eu fiz: implementando ingredientes selecionáveis
+
+Agora é a sua vez de colocar a mão na massa, caso ainda não tenha feito!
+Crie um componente IngredienteSelecionavel com um estado selecionado que controla o visual do componente quando ele é clicado. Além disso, quando um ingrediente for clicado, adicione-o na lista de ingredientes da SuaLista; da mesma forma, caso ele seja clicado novamente, remova-o da SuaLista.
+
+Crie o componente IngredienteSelecionavel:
+<script lang="ts">
+import Tag from './Tag.vue';
+
+export default {
+  components: { Tag },
+  props: {
+    ingrediente: { type: String, required: true }
+  },
+  data() {
+    return {
+      selecionado: false
+    }
+  },
+  methods: {
+    aoClicar() {
+      this.selecionado = !this.selecionado
+
+      if (this.selecionado) {
+        this.$emit('adicionarIngrediente', this.ingrediente)
+      } else {
+        this.$emit('removerIngrediente', this.ingrediente);
+      }
+    }
+  },
+  emits: ['adicionarIngrediente', 'removerIngrediente']
+}
+</script>
+
+<template>
+  <button
+    class="ingrediente"
+    @click="aoClicar"
+    :aria-pressed="selecionado"
+  >
+    <Tag :texto="ingrediente" :ativa="selecionado" />
+  </button>
+</template>
+
+<style scoped>
+.ingrediente {
+  cursor: pointer;
+}
+</style>
+COPIAR CÓDIGO
+Em seguida, na <ul> de ingredientes do CardCategoria, use o IngredienteSelecionavel em vez da Tag, escuta os eventos e os re-emita:
+
+<IngredienteSelecionavel
+  :ingrediente="ingrediente"
+  @adicionar-ingrediente="$emit('adicionarIngrediente', $event)"
+  @remover-ingrediente="$emit('removerIngrediente', $event)"
+/>
+COPIAR CÓDIGO
+Agora, em SelecionarIngredientes, também escute e re-emita os eventos:
+
+<CardCategoria
+  :categoria="categoria"
+  @adicionar-ingrediente="$emit('adicionarIngrediente', $event)"
+  @remover-ingrediente="$emit('removerIngrediente', $event)"
+/>
+COPIAR CÓDIGO
+Nos dois componentes CardCategoria e SelecionarIngredientes, não esqueça de adicionar a opção emits: ['adicionarIngrediente', 'removerIngrediente'].
+Por fim, em ConteudoPrincipal, escute os eventos pela última vez execute as funções correspondentes:
+
+<SelecionarIngredientes
+  @adicionar-ingrediente="adicionarIngrediente"
+  @remover-ingrediente="removerIngrediente"
+/>
+COPIAR CÓDIGO
+Agora crie as funções no methods do ConteudoPrincipal:
+
+methods: {
+  adicionarIngrediente(ingrediente: string) {
+    this.ingredientes.push(ingrediente)
+  },
+  removerIngrediente(ingrediente: string) {
+    this.ingredientes = this.ingredientes.filter(iLista => ingrediente !== iLista);
+  },
+}
+COPIAR CÓDIGO
+Pronto! O IngredienteSelecionavel agora possui um estado próprio para controlar seu visual quando clicado, além de conseguir adicionar e remover ingredientes da SuaLista. Finalizamos suas funcionalidades!
+
+@@09
+O que aprendemos?
+
+Nessa aula, você aprendeu a:
+Controlar o visual de um componente usando estado e props:
+Criamos o componente IngredienteSelecionavel com o estado booleano selecionado. Com ele, conseguimos saber quando o ingrediente está selecionado ou não;
+Cada ingrediente selecionável possui seu próprio estado: podemos mudar o valor do estado de um sem interferir no estado dos outros;
+Podemos passar um estado como prop: o estado selecionado foi definido como o valor da prop ativa da Tag. Dessa forma, caso o estado mude, a prop ativa também muda e o visual da Tag irá mudar de acordo;
+Emitir e escutar eventos personalizados:
+Usamos $emit (no template) ou this.$emits (no script) para emitir um evento personalizado. O primeiro parâmetro é o nome do evento, e o segundo parâmetro (e consecutivos) é um dado JavaScript que o evento pode carregar;
+É uma boa prática definir os eventos na opção emits do componente;
+É possível escutar o evento diretamente no componente pai, escrevendo v-on:nome-do-evento (ou @nome-do-evento) no consumo do componente filho;
+É possível acessar o dado do evento por meio do $event ou, caso seja escrita uma função callback para o ouvinte do evento, podemos acessar o dado nos parâmetros dessa função. Nesse último caso, temos a vantagem de nomear e de tipar o dado do evento.
