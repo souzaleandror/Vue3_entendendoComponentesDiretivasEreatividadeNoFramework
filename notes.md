@@ -4655,3 +4655,752 @@ Usamos $emit (no template) ou this.$emits (no script) para emitir um evento pers
 É uma boa prática definir os eventos na opção emits do componente;
 É possível escutar o evento diretamente no componente pai, escrevendo v-on:nome-do-evento (ou @nome-do-evento) no consumo do componente filho;
 É possível acessar o dado do evento por meio do $event ou, caso seja escrita uma função callback para o ouvinte do evento, podemos acessar o dado nos parâmetros dessa função. Nesse último caso, temos a vantagem de nomear e de tipar o dado do evento.
+
+#### 23/02/2024
+
+@05-Alternando telas
+
+@@01
+Projeto da aula anterior
+
+Caso deseje, você pode baixar o projeto da aula anterior ou visualizar os arquivos no GitHub.
+Bons estudos!
+
+https://github.com/alura-cursos/cookin-up/archive/refs/heads/aula-4.zip
+
+https://github.com/alura-cursos/cookin-up/tree/aula-4
+
+@@02
+Controlando exibição de componentes
+
+Finalizamos a primeira página do Cooking Up!
+No projeto, deixamos implementado o código dos desafios, incluindo a funcionalidade de remoção de ingredientes e o botão de buscar receitas, além do rodapé. Quando adicionamos os ingredientes, algo que realizamos juntos, podemos clicar neles novamente e são removidos com sucesso. No final da página, foi incluído um componente do botão principal de buscar receitas e também o componente do rodapé.
+
+Voltando para o Figma, próximo passo será começar a trabalhar em como transitar de uma página para a outra. Ou seja, ao clicar no botão de buscar receitas, queremos ser direcionados para a segunda página. Inicialmente, nós podemos criar um estado que controla o que será ou não exibido. Podemos até utilizar o v-if ou v-else para isso. Faremos isso diretamente no código.
+
+No VSCode, vamos ConteudoPrincipal.vue, que é o componente que exibe toda essa parte principal. Por enquanto, ele é uma tag main, que mostra o componente SuaLista e o componente SelecionarIngredientes. É exatamente este último componente que precisamos verificar se será exibido ou não. Na verdade, exibiremos ele ou algum outro componente correspondente à segunda página.
+
+Para a segunda página, podemos até criar outro componente chamado MostrarReceitas, por exemplo. Vamos fazer isso.
+
+Na pasta components, criaremos um arquivo chamado MostrarReceitas.vue. Por enquanto, ele será apenas um template com o texto "Mostrando Receitas", apenas para testarmos:
+
+<template>
+    Mostrando receitas...
+<template>
+COPIAR CÓDIGO
+Feito isso, salvamos esse arquivo e retornamos para ConteudoPrincipal.vue, onde criaremos um estado no export default do objeto. No data() do objeto, adicionaremos uma nova propriedade chamada conteudo, que será uma string. Essa string se chamará SelecionarIngredientes. Poderia ser qualquer valor, mas manteremos o mesmo nome do componente para uma melhor identificação do conteúdo.
+
+Podemos tipar esse estado. Ele poderá ter apenas dois tipos possíveis, que serão o próprio SelecionarIngredientes ou MostrarReceitas. Para organizar melhor, manteremos esses tipos salvos em um tipo do TypeScript. Para isso, recortamos essas duas strings possíveis, criamos um tipo chamado Pagina e passamos as strings.
+
+type Pagina = 'SelecionarIngredientes' | 'MostrarReceitas';
+
+export default {
+    data() {
+        return {
+            ingredientes: [] as string[],
+            conteudo: 'SelecionarIngredientes' as Pagina
+    };
+},
+COPIAR CÓDIGO
+Depois vamos até SelecionarIngredientes, por volta da linha 32, e colocamos um v-if="conteudo === 'SelecionarIngredientes'". Se o conteúdo for igual a SelecionarIngredientes, renderizamos esse componente. Notem que podemos utilizar o v-if juntamente com componentes, além dos elementos HTML. Isso geralmente é verdade para a maioria das diretivas do Vue.
+
+<SelecionarIngredientes v-if="conteudo === 'SelecionarIngredientes'"
+    @adicionar-ingrediente="adicionar Ingrediente" 
+    @remover-ingrediente="remover Ingrediente"
+/>
+COPIAR CÓDIGO
+Abaixo de SelecionarIngredientes, chamaremos MostrarReceitas. Ao usar o atalho "Enter" para completar, pode ser que ele apareça como MostrarReceitas.vue, mas deixaremos somente MostrarReceitas, e corrigiremos as importações também removendo o vue.
+
+Adicionaremos um v-else-if porque queremos exibir MostrarReceitas somente se o conteúdo for igual a MostrarReceitas.
+
+<MostrarReceitas v-else-if="conteudo === 'MostrarReceitas'" />
+COPIAR CÓDIGO
+Essa é a lógica, vamos testar se funciona. Assumindo que o valor inicial do conteúdo seja SelecionarIngredientes, queremos que ele mostre do modo em que estava antes do nosso projeto, exibindo a parte referente a SelecionarIngredientes.
+
+Salvamos esse arquivo, retornamos ao navegador e atualizamos a página apenas. Note que continua igual a antes. Contudo, se formos ao código e trocarmos SelecionarIngredientes por MostrarReceitas, deverá exibir o componente que criamos:
+
+export default {
+    data() {
+        return {
+            ingredientes: [] as string[],
+            conteudo: 'MostrarReceitas' as Pagina
+    };
+},
+COPIAR CÓDIGO
+Salvamos o arquivo e voltamos ao navegador. Veja como está exibindo o texto "Mostrando receitas...". Então a lógica já está funcionando, mas vamos retornar o conteúdo ao modo em que estava antes, isto é, SelecionarIngredientes.
+
+export default {
+    data() {
+        return {
+            ingredientes: [] as string[],
+            conteudo: 'SelecionarIngredientes' as Pagina
+    };
+},
+COPIAR CÓDIGO
+O próximo passo, analisando o projeto, é: quando clicar em "Buscar Receitas!", queremos que altere para a segunda página. O que podemos fazer então é alterar o estado do conteúdo, o texto dele, ao clicarmos nesse botão. Vamos fazer isso diretamente no código.
+
+Vamos ao arquivo SelecionarIngredientes.vue, que está utilizando o botão principal por volta da linha 43, escreveremos @click.
+
+Vale ressaltar que também conseguimos utilizar o V1 diretamente nos componentes. Neste caso, o comportamento será que o V1 será aplicado ali no elemento raiz do botão principal. Disponibilizaremos uma atividade descrevendo isso de forma mais completa
+
+Após o @click emitiremos um evento. Ao emitir o evento, podemos notificar o ConteudoPrincipal.vue de que queremos alterar o estado dele. Escreveremos $emit(), passando o nome do evento, que será buscarReceitas.
+
+<BotaoPrincipal texto="Buscar receitas!" @click="$emit(' buscarReceitas')" />
+COPIAR CÓDIGO
+Vamos adicionar ao array de emits, para ter um autocomplete:
+
+emits: ['adicionarIngrediente', 'removerIngrediente', 'buscarReceitas']
+COPIAR CÓDIGO
+Não precisamos carregar nenhum dado, então não é necessário um segundo parâmetro. Vamos salvar esse arquivo, voltar ao conteúdo principal, ir até a parte que estamos consumindo, SelecionarIngredientes, e adicionar @buscar-receitas, passando "conteudo = 'MostrarReceitas'". Depois, é só salvar.
+
+<SelecionarIngredientes v-if="conteudo === 'SelecionarIngredientes'"
+    @adicionar-ingrediente="adicionar Ingrediente" 
+    @remover-ingrediente="remover Ingrediente"
+    @buscar-receitas="conteudo = 'MostrarReceitas'"
+/>
+COPIAR CÓDIGO
+Teoricamente, ao clicar no botão, ouviremos esse evento, alteraremos o estado, e ele irá renderizar novamente o componente que deve ser exibido.
+
+De volta ao navegador, vamos verificar se funciona. Clicamos em "Buscar Receitas!" e ele muda de página.
+
+Finalmente, para encerrar, retornaremos ao VS Code para separar a parte de alterar, reatribuir o estado de conteúdo em um método à parte. Recortamos a instrução do evento @buscar-receitas e chamamos uma função que será nomeada como navegar(). Como parâmetro, passamos qual é a página que queremos navegar, ou seja, MostrarReceitas.
+
+<SelecionarIngredientes v-if="conteudo === 'SelecionarIngredientes'"
+    @adicionar-ingrediente="adicionar Ingrediente" 
+    @remover-ingrediente="remover Ingrediente"
+    @buscar-receitas="navegar('MostrarReceitas')"
+/>
+COPIAR CÓDIGO
+Em methods, por volta da linha 24, criaremos essa função, navegar(), que recebe a página como parâmetro, e dizemos que é do tipo Pagina, que já havíamos criado. Dentro dela, passamos a instrução que havíamos recortado e alteramos para this.conteudo. Em vez de passar de forma estática, uma string chamada MostrarReceitas, passaremos o parâmetro pagina.
+
+navegar(pagina: Pagina) {
+    this.conteudo = pagina;
+}
+COPIAR CÓDIGO
+Vamos salvar esse arquivo e conferir se está igual. Abrimos o navegador na primeira página. Se clicarmos em "Buscar Receitas!", veremos que está funcionando corretamente.
+
+O próximo passo agora é codificar a segunda página. No entanto, isso será um desafio para você! A página já está disponível no Figma, mas te incentivo a tentar implementá-la por conta própria, seguindo uma sequência de passos que disponibilizaremos para auxiliar neste processo.
+
+No próximo vídeo, já teremos implementado o desafio no código, então espero vê-lo lá para continuarmos o projeto.
+
+@@03
+Para saber mais: Falltrought Attributes
+
+No vídeo anterior, utilizamos a diretiva v-on diretamente em um componente, o BotaoPrincipal:
+<BotaoPrincipal texto="Buscar receitas!" @click="$emit('buscarReceitas')" />
+COPIAR CÓDIGO
+Nós já tínhamos aprendido a utilizar o v-on para escutar eventos personalizados emitidos por componentes filhos. No entanto, no código acima, estamos escutando um evento do DOM, o click. Como o Vue lida com isso?
+
+Para explicar, vamos dar uma olhada no código do BotaoPrincipal:
+
+<script lang="ts">
+export default {
+  props: {
+    texto: { type: String, required: true },
+  }
+}
+</script>
+
+<template>
+  <button class="paragrafo-lg botao-principal">
+    {{ texto }}
+  </button>
+</template>
+
+<!-- Tag <style> omitida -->
+COPIAR CÓDIGO
+Quando utilizamos o v-on no consumo de um componente, é como se estivéssemos aplicando o v-on diretamente no elemento raiz desse componente. O elemento raiz é o elemento mais externo do <template> do componente, ou seja, nesse caso, é o elemento <button>.
+
+Esse recurso é chamado de Fallthrough Attribute. Uma tradução um pouco ruim para essa expressão seria “atributo que cai adentro”. Você pode pensar que é como se o atributo v-on que estamos aplicando no BotaoPrincipal “caísse para dentro” do componente e fosse aplicado diretamente no elemento raiz!
+
+O bacana desse recurso é que ele não se limita ao v-on; ele também se integra muito bem com atributos como class e style.
+
+Ou seja, ao consumir um componente, não é necessário que ele declare props para poder receber classes ou estilos do componente pai, ou declarar eventos personalizados para re-emitir eventos nativos, como o click do botão.
+
+Os fallthrough attributes possuem vários detalhes que precisam ser conferidos com atenção em casos mais avançados (por exemplo, quando você não quer aplicar o atributo automaticamente no elemento raiz ou quando o componente possui múltiplos elementos raízes). Para se aprofundar mais nesse assunto, acesse a documentação!
+
+@@04
+Mão na massa: implementando página de receitas
+
+Agora você precisa implementar o visual da segunda página!
+No entanto, você fará mais algumas coisas além de apenas o visual, mas nada que não tenha sido abordado antes. Você tem as seguintes tarefas:
+
+1 - Codificar o visual abaixo. As imagens locais já estão na pasta public/imagens/receitas. Você pode usar uma lista de objetos para listar as receitas num primeiro momento, ou realizar a próxima etapa para já obter todas as informações prontas. Não é necessário implementar a lógica de filtragem de receitas ainda! (isto é, exibir apenas as receitas possíveis de serem feitas com os ingredientes selecionados);
+
+Recorte de tela do Figma, mostrando o conteúdo da página de receitas. Todo o conteúdo está centralizado. Há o título “Receitas”, abaixo dele há o texto “Resultado encontrados: 8”. Logo abaixo há outro texto: “Veja as opções de receitas que encontramos com os ingredientes que você tem por aí!”. Logo abaixo, há oito cards de receitas, cada um mostra a imagem de uma receita diferente o nome dela, como “Pasta de alho assado” e “Patê de alho assado”. Por fim, abaixo das receitas, há um botão com o texto “Editar lista”. (Aula5-img1.png)
+
+2 - Obtenha as informações dessa URL para exibir as receitas, fazendo uma requisição HTTP. Faça o que já fizemos antes: crie um estado que inicia como uma lista de receitas vazia e reatribua o valor desse estado depois que a requisição HTTP for bem sucedida;
+
+3 - O botão de “Editar Lista” deve retornar para a primeira página;
+
+4 - Codifique o visual abaixo para o caso em que a lista de receitas estiver vazia. A imagem já está em src/assets/imagens/sem-receitas.png.
+
+Recorte de tela do Figma, mostrando o conteúdo da página de receitas, mas agora sem nenhuma receita ter sido encontrada. O título e a primeira frase são iguais, mas agora o número de resultados encontrados é 0. Logo abaixo, agora há um texto “Ops, não encontramos resultados para sua combinação. Vamos tentar de novo?”. Logo abaixo, há a imagem de um ovo quebrado. Por fim, abaixo da imagem, o botão de “Editar lista” permanece igual. (Aula5-img2.png)
+
+Boa prática!
+
+Você também pode conferir as mudanças nesse commit do GitHub.
+O componente MostrarReceitas ficará assim:
+
+<script lang="ts">
+import { obterReceitas } from '@/http';
+import type IReceita from '@/interfaces/IReceita';
+import BotaoPrincipal from './BotaoPrincipal.vue';
+import CardReceita from './CardReceita.vue';
+
+export default {
+  data() {
+    return {
+      receitasEncontradas: [] as IReceita[]
+    };
+  },
+  async created() {
+    const receitas = await obterReceitas();
+
+    this.receitasEncontradas = receitas.slice(0, 8);
+  },
+  components: { BotaoPrincipal, CardReceita },
+  emits: ['editarReceitas']
+}
+</script>
+
+<template>
+  <section class="mostrar-receitas">
+    <h1 class="cabecalho titulo-receitas">Receitas</h1>
+
+    <p class="paragrafo-lg resultados-encontrados">
+      Resultados encontrados: {{ receitasEncontradas.length }}
+    </p>
+
+    <div v-if="receitasEncontradas.length" class="receitas-wrapper">
+      <p class="paragrafo-lg informacoes">
+        Veja as opções de receitas que encontramos com os ingredientes que você tem por aí!
+      </p>
+
+      <ul class="receitas">
+        <li v-for="receita of receitasEncontradas" :key="receita.nome">
+          <CardReceita :receita="receita" />
+        </li>
+      </ul>
+    </div>
+
+    <div v-else class="receitas-nao-encontradas">
+      <p class="paragrafo-lg receitas-nao-encontradas__info">
+        Ops, não encontramos resultados para sua combinação. Vamos tentar de novo?
+      </p>
+
+      <img src="../assets/imagens/sem-receitas.png"
+        alt="Desenho de um ovo quebrado. A gema tem um rosto com uma expressão triste.">
+    </div>
+
+    <BotaoPrincipal texto="Editar lista" @click="$emit('editarReceitas')" />
+  </section>
+</template>
+
+<style scoped>
+.mostrar-receitas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.titulo-receitas {
+  color: var(--verde-medio, #3D6D4A);
+  margin-bottom: 1.5rem;
+}
+
+.resultados-encontrados {
+  color: var(--verde-medio, #3D6D4A);
+  margin-bottom: 0.5rem;
+}
+
+.receitas-wrapper {
+  margin-bottom: 3.5rem;
+}
+
+.informacoes {
+  margin-bottom: 2rem;
+}
+
+.receitas {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.receitas-nao-encontradas {
+  margin-bottom: 2rem;
+}
+
+.receitas-nao-encontradas__info {
+  margin-bottom: 0.5rem;
+}
+
+@media only screen and (max-width: 767px) {
+  .receitas-wrapper {
+    margin-bottom: 2rem;
+  }
+}
+</style>
+COPIAR CÓDIGO
+Note que há uma nova interface sendo utilizada: IReceita. Na pasta src/interfaces, foi criado um arquivo IReceita.ts:
+
+export default interface IReceita {
+  nome: string;
+  ingredientes: string[];
+  imagem: string;
+}
+COPIAR CÓDIGO
+Também há uma nova função obterReceitas vindo do arquivo src/http/index.ts. O arquivo agora está assim:
+
+import type ICategoria from "@/interfaces/ICategoria";
+import type IReceita from "@/interfaces/IReceita";
+
+async function obterDadosURL<T>(url: string) {
+  const resposta = await fetch(url);
+  return resposta.json() as T;
+}
+
+export async function obterCategorias() {
+  return obterDadosURL<ICategoria[]>('https://gist.githubusercontent.com/antonio-evaldo/002ad55e1cf01ef3fc6ee4feb9152964/raw/bf463b47860043da3b3604ca60cffc3ad1ba9865/categorias.json');
+}
+
+export async function obterReceitas() {
+  return obterDadosURL<IReceita[]>('https://gist.githubusercontent.com/antonio-evaldo/002ad55e1cf01ef3fc6ee4feb9152964/raw/bf463b47860043da3b3604ca60cffc3ad1ba9865/receitas.json');
+}
+COPIAR CÓDIGO
+O código foi reescrito para aproveitar a estrutura de requisição HTTP da Fetch API. A função obterDadosURL() recebe como parâmetro uma url de requisição, além de receber também uma generics T que indica o tipo de retorno que a requisição deve retornar.
+
+E agora também há um novo componente CardReceita, que possui o seguinte código:
+
+<script lang="ts">
+import type IReceita from '@/interfaces/IReceita';
+import type { PropType } from 'vue';
+
+export default {
+  props: {
+    receita: { type: Object as PropType<IReceita>, required: true }
+  }
+}
+</script>
+
+<template>
+  <article class="receita">
+    <header class="receita__cabecalho">
+      <img class="receita__imagem" :src="`/imagens/receitas/${receita.imagem}`" :alt="`Foto de ${receita.nome}`">
+    </header>
+
+    <section class="receita__corpo">
+      <h2 class="paragrafo receita__nome">
+        {{ receita.nome }}
+      </h2>
+    </section>
+  </article>
+</template>
+
+<style scoped>
+.receita {
+  display: flex;
+  width: 17.625rem;
+  max-width: 19.5rem;
+  flex-direction: column;
+  align-items: center;
+
+  border-radius: 1rem;
+  background: var(--Branco, #FFF);
+  box-shadow: 4px 4px 12px 0px rgba(68, 68, 68, 0.08);
+}
+
+.receita__corpo {
+  padding: 2rem 1rem;
+}
+
+.receita__imagem {
+  width: 100%;
+  border-radius: 1rem 1rem 0rem 0rem;
+  display: block;
+}
+
+.receita__nome {
+  font-weight: 700;
+  color: var(--cinza, #444);
+}
+</style>
+COPIAR CÓDIGO
+Por fim, o BotaoPrincipal que está sendo utilizado no MostrarReceitas está emitindo um evento 'editarReceitas' ao ser clicado. Escute esse evento no pai direto, em ConteudoPrincipal, para navegar de volta para a primeira página quando o botão “Editar lista” for clicado:
+
+<MostrarReceitas
+  v-else-if="conteudo === 'MostrarReceitas'"
+  @editar-receitas="navegar('SelecionarIngredientes')"
+/>
+COPIAR CÓDIGO
+Com isso, todos os passos foram concluídos!
+
+https://gist.githubusercontent.com/antonio-evaldo/002ad55e1cf01ef3fc6ee4feb9152964/raw/bf463b47860043da3b3604ca60cffc3ad1ba9865/receitas.json
+
+https://github.com/alura-cursos/cookin-up/commit/5704f05f89c52d1e1bd4de06c3eeb6ea18d10e06
+
+@@05
+Mantendo um componente vivo
+
+A resolução do desafio já está implementada no projeto. Se tratava, basicamente, de implementar o visual da segunda página com alguns estados.
+Com o projeto aberto no navegador, vamos selecionar alguns ingredientes aleatórios, como ovos, queijo e leite. Então, iremos até o final da página e clicamos no botão de buscar receitas. Feito isso, teremos o visual da segunda página.
+
+Porém, estamos exibindo apenas estaticamente essas oito receitas. Inclusive, já estamos buscando através de uma URL da web, e está até contando os resultados de acordo com o número de cards. Mas nós ainda não implementamos a lógica de busca, de fato, dessas receitas. Pelo menos não de acordo com a nossa lista de ingredientes selecionados.
+
+Mas isso nós faremos em outro momento, porque antes precisamos corrigir um bug, que é o seguinte: selecionamos três ingredientes, mas se clicarmos no botão de editar lista, que também já está funcionando, voltamos para a primeira página e os ovos, queijo e leite que havíamos selecionado, não estão mais selecionados.
+
+Isso ocorre basicamente porque o view não vai preservar o estado dos componentes que são removidos da tela. Isso foi feito por conta do v-if e do v-else-if que estamos fazendo para controlar qual componente é exibido em tela: SelecionarIngredientes ou MostrarReceitas. No momento que o SelecionarIngredientes for removido de tela, o estado daqueles três ingredientes se perde. E quando voltamos para a primeira página, o estado é reinicializado para o seu valor original.
+
+O view fornece uma solução bem interessante para resolver este problema, então voltemos ao VS Code e abrimos o componente ConteudoPrincipal.vue, que é onde controlamos a exibição dos componentes. Nele, basta fazermos o seguinte: escreveremos um novo componente que se chama KeepAlive e não precisa ser importado. Dentro dele, colocamos SelecionarIngredientes e MostrarReceitas.
+
+<KeepAlive>
+    <Selecionar Ingredientes v-if="conteudo === 'Selecionar Ingredientes""
+        @adicionar-ingrediente="adicionar Ingrediente"
+        @remover-ingrediente="remover Ingrediente"
+        @buscar-receitas="navegar ('MostrarReceitas')"
+    />
+
+    <MostrarReceitas v-else-if="conteudo === 'MostrarReceitas'
+        @editar-receitas="navegar ('Selecionar Ingredientes')"
+    />
+</KeepAlive>
+COPIAR CÓDIGO
+Agora, vamos salvar o arquivo, voltar ao navegador e atualizar a página para reinicializar a lista. Em seguida, selecionamos quaisquer ingredientes e clicamos em "Buscar Receitas". Na segunda página, clicamos em "Editar lista" para retornar à primeira página. Ao fazer isso, os ingredientes continuaram selecionados, então os estados realmente foram preservados.
+
+Mas então como funciona o componente KeepAlive? Em tradução livre, ele significa basicamente "manter vivo". Esse é um componente nativo do Vue, que serve justamente para preservar o estado dos componentes que colocamos dentro dele. Ele funciona bem com o v-if e v-else, além de alguns outros casos.
+
+A forma que ele preserva o estado é basicamente guardando os componentes em um lugar da memória chamado cache, então ele vai "cachear" (armazenar) os componentes mesmo que eles sejam removidos da tela. Quando pedirmos para serem mostrados na tela novamente, ele vai apenas recuperar esse local da memória, que é um local de rápido acesso.
+
+Por este mesmo motivo, é importante dizermos quais são os componentes que é relevante armazenar. Nós podemos dizer para o KeepAlive exatamente os componentes que queremos cachear, assim não precisamos colocar no cache componentes desnecessários, como, por exemplo, o MostrarReceitas.
+
+Diremos para ele que queremos guardar apenas o SelecionarIngredientes, que é o componente no qual estamos preocupados em preservar o estado. Para fazer isso, vamos ao KeepAlive, assinamos um atributo chamado include ("incluir", em inglês), e colocamos exatamente o nome do componente: SelecionarIngredientes.
+
+<KeepAlive include="SelecionarIngredientes">
+    <Selecionar Ingredientes v-if="conteudo === 'Selecionar Ingredientes""
+        @adicionar-ingrediente="adicionar Ingrediente"
+        @remover-ingrediente="remover Ingrediente"
+        @buscar-receitas="navegar ('MostrarReceitas')"
+    />
+
+    <MostrarReceitas v-else-if="conteudo === 'MostrarReceitas'
+        @editar-receitas="navegar ('Selecionar Ingredientes')"
+    />
+</KeepAlive>
+COPIAR CÓDIGO
+Isso, por si só, não funcionará, pois para que o Keep Alive consiga identificar que esse nome se refere ao componente SelecionarIngredientes, precisamos modificar o arquivo desse componente. Então, vamos ao arquivo SelecionarIngredientes.vue, navegamos até export default e adicionamos uma opção chamada name, que será o nome do componente. O name desse componente será a string 'SelecionarIngredientes'. Se continuar funcionando, significa que deu certo.
+
+export default {
+    name: 'SelecionarIngredientes',
+COPIAR CÓDIGO
+Então, salvamos os dois arquivos, pois quando utilizamos o include, realmente só inserimos o componente especificado. Ele não armazenará mais o componente MostrarReceitas.
+
+Agora, voltamos ao navegador para verificar se continua funcionando. Atualizamos a página, selecionamos alguns ingredientes, clicamos em "Buscar Receitas" e, em seguida, "Editar Lista". Note que continua funcionando, então aparentemente, deu certo.
+
+Agora, sim, estamos preparados para resolver o último problema do nosso projeto, que é de fato implementar a lógica de busca de receitas de acordo com os ingredientes selecionados. Nos vemos no próximo vídeo!
+
+@@06
+Buscando receitas
+
+Já resolvemos o problema de preservação de estado com a ajuda do componente nativo KeepAlive. Assim, mesmo alterando as páginas, os ingredientes que selecionamos permanecem selecionados. O que falta implementar é a lógica de busca de receitas, realmente uma filtragem de acordo com os ingredientes que selecionamos.
+Para desenvolver essa lógica, voltemos ao VS Code, especificamente ao arquivo MostrarReceitas.vue. No export efault, temos o dado de receitasEncontradas, que inicia como uma lista vazia. Há também o método de ciclo de vida created(), que busca as receitas de uma função chamada obterReceitas. Se verificarmos a documentação dessa função, vemos que ela obtém as receitas de um link da web. São todas as receitas que o nosso site está buscando. É a partir dessas que precisamos realizar a filtragem, selecionando as receitas que desejamos mostrar, de acordo com os ingredientes que selecionamos.
+
+Ainda dentro do método created(), a única coisa que estamos fazendo, por enquanto, é uma atribuição estática. Pegamos de todas as receitas apenas as oito primeiras e atribuímos a esse estado de receitas encontradas. O restante da tela é renderizado, como, por exemplo, o tamanho, a quantidade de receitas e os recursos de receitas de acordo com cada uma delas.
+
+Agora precisamos alterar essa lógica de atribuição estática, que é o receitas.slice(). Então apagaremos essa parte. Mas o que iremos fazer? Queremos realizar uma filtragem, então podemos iniciar escrevendo receitas.filter. Esse filter recebe uma função callback que passa como parâmetro cada uma das receitas.
+
+this.receitasEncontradas = receitas.filter((receita) => {
+
+})
+COPIAR CÓDIGO
+Dentro do filter, precisamos definir a lógica de filtragem. Basicamente, para cada receita que desejamos apresentar na tela e guardar no array receitasEncontradas, precisamos retornar o valor true se quisermos que essa receita seja mostrada. Assim, qual será a lógica para mostrar uma receita?
+
+Vamos escrever em forma de comentário para tentar prever a lógica antes de realmente implementar o código. A lógica é a seguinte: todos os ingredientes de uma receita devem estar inclusos na minha lista de ingredientes.
+
+Por exemplo, se uma receita pede alho e azeite de oliva, precisamos ter pelo menos esses dois ingredientes na lista. Resumindo, todos os ingredientes de uma receita devem estar inclusos na minha lista de ingredientes selecionados. Se esse for o caso, devemos retornar true para essa função do filter.
+
+this.receitasEncontradas = receitas.filter((receita) => {
+    // Lógica que verifica se posso fazer receita:
+    // Todos os ingredientes de uma receita devem estar inclusos na minha lista de ingredientes
+    // Se sim, devemos retornar `true`
+})
+COPIAR CÓDIGO
+Agora, podemos começar a escrever o código que traduz essa lógica. Criaremos uma constante chamada possoFazerReceita que receberá uma função que ainda implementaremos.
+
+Essa função se chamará itensDeLista1EstaoEmLista2, justamente porque queremos verificar se os ingredientes de uma receita estão inclusos na lista de ingredientes. Podemos usar uma função auxiliar para isso.
+
+O que vamos verificar é justamente se os ingredientes necessários (receita.ingredientes) estão inclusos na segunda lista, que será this.ingredientes.
+
+this.receitasEncontradas = receitas.filter((receita) => {
+    // Lógica que verifica se posso fazer receita:
+    // Todos os ingredientes de uma receita devem estar inclusos na minha lista de ingredientes
+    // Se sim, devemos retornar `true`
+    
+    const possoFazerReceita = itensDeLista1EstaoEmLista2(receita.ingredientes, this.ingredientes)
+    })
+},
+COPIAR CÓDIGO
+No entanto, ainda não temos acesso a this.ingredientes, então precisamos passá-lo como props. Antes de fazer isso, vamos retornar possoFazerReceita no final da função, valor que será verdadeiro ou falso.
+
+this.receitasEncontradas = receitas.filter((receita) => {
+    // Lógica que verifica se posso fazer receita:
+    // Todos os ingredientes de uma receita devem estar inclusos na minha lista de ingredientes
+    // Se sim, devemos retornar `true`
+    
+    const possoFazerReceita = itensDeLista1EstaoEmLista2(receita.ingredientes, this.ingredientes)
+    
+    return possoFazerReceita;
+    })
+},
+COPIAR CÓDIGO
+Agora, sim, vamos passar esses ingredientes como props.
+
+No início do export default, escrevemos props que será um objeto. Ele terá um campo chamado ingredientes, que será um objeto do tipo array. Vamos refinar a definição deste array utilizando as PropType e importá-lo manualmente do Vue no início do script com: import type { PropType } from 'vue'.
+
+No PropType, vamos especificar que o tipo desse array será uma lista de strings. Em seguida, ainda no objeto, escreveremos required: true, indicando que essa propriedade é obrigatória.
+
+export default {
+    props: {
+        ingredientes: { type: Array as PropType<string[]>, required: true }
+    },
+COPIAR CÓDIGO
+Agora, em ConteudoPrincipal.vue, vamos passar essa propriedade de ingredientes. Então, abriremos este componente do conteúdo principal, e em MostrarReceitas, passamos a propriedade ingredientes, cujo valor será simplesmente ingredientes - não precisamos usar this aqui no template.
+
+<MostrarReceitas v-else-if="conteudo === 'MostrarReceitas'"
+    :ingredientes="ingredientes"
+    @editar-receitas="navegar('SelecionarIngredientes')"
+/>
+COPIAR CÓDIGO
+Feito isso, salvamos esse arquivo.
+
+Agora, vamos implementar a função itensDeLista1EstaoEmLista2, que será um trecho de código lógico. Faremos isso em um arquivo separado.
+
+Dentro do diretório src, criaremos uma nova pasta chamada operacoes. Nela, criaremos um arquivo chamado listas.ts. Este será um arquivo utilitário para operações envolvendo listas em JavaScript.
+
+A lógica será a seguinte: escreveremos export functionporque podemos ter outras funções neste arquivo, então não precisa ser default. Em seguida, colocamos o nome da função itensDeLista1EstaoEmLista2 e abrimos chaves {}.
+
+export function itensDeLista1EstaoEmLista2() {
+
+}
+COPIAR CÓDIGO
+Essa função receberá dois parâmetros, cada um será uma das listas. A primeira lista será chamada lista1, do tipo unknown[]. A segunda será lista2, também do tipo unknown[].
+
+A palavra unknown, em inglês, significa desconhecido. Dessa forma, não precisamos nem saber qual o tipo de dado que essas listas carregam. Ainda assim, conseguiremos fazer algumas verificações com elas, por isso essa tipagem é a ideal neste caso.
+
+Agora, vamos para a lógica. O que temos que retornar para essa função é um valor booleano para dizer se todos os itens da lista1 estão na lista2. Logo, passaremos lista1.every() como valor de retorno.
+
+Se todos os itens da lista1 estiverem inclusos na lista2, a função callback irá retornar verdadeiro. Isso acontecendo, a função every() também retorna verdadeiro para a função externa.
+
+export function itensDeLista1EstaoEmLista2(lista1: unknown [], lista2: unknown[]) { 
+    return lista1.every ((itemLista1) => lista2.includes (itemLista1)); 
+}
+COPIAR CÓDIGO
+Feito isso, salvamos o arquivo e voltamos para MostrarReceitas.vue. A função itensDeLista1EstaoEmLista2 ainda deve estar acusando erro, pois não a importamos. Para isso, adicionar o seguinte comando de importação no início do script:
+
+import { itensDeLista1EstaoEmLista2 } from '@/operacoes/listas';
+COPIAR CÓDIGO
+Caso ainda esteja aparecendo um sublinhado vermelho indicando erro, podemos reiniciar o VS Code para ver se ele some. Como mencionado, o TypeScript às vezes demora para reconhecer algumas importações. Então, usaremos o atalho "Ctrl + Shift + P", escrevemos "reload" e selecionamos a opção "Reload window" (recarregar janela).
+
+Ao fazer isso, o erro deve sumir, então agora podemos testar. Vamos salvar esse arquivo e conferir com "Ctrl + J" no terminal se o servidor está rodando corretamente. Em seguida, voltamos ao navegador para conferir se realmente a lógica está funcionando.
+
+Vamos acessar a URL que exibe todas as receitas. Inclusive, estamos fazendo a solicitação em nosso projeto. As receitas pasta de alho assado e patê de alho assado precisam de alho e azeite de oliva. Já a receita de alho assado, além do alho e do azeite de oliva, também requer orégano.
+
+No Cooking Up, selecionaremos os ingredientes azeite de oliva, que está no quarto card, e alho, que está no quinto card, além de mais alguns ingredientes como ovos e queijo. Então, se selecionamos alho e azeite de oliva, as receitas que citamos devem aparecer.
+
+Selecionamos os ingredientes, clicaremos no botão "Buscar Receitas". Ao fazer isso, nos são retornadas as receitas "Pasta de alho assado" e "Patê de alho assado". Para confirmar o funcionamento, vamos em "Editar lista" e selecionamos o ingrediente orégano, que está no terceiro card. Fazendo isso e clicando em "Buscar Receitas", a receita "Alho Assado" aparece junto das outras duas.
+
+A lógica está funcionando! Com isso, finalizamos as funcionalidades do projeto.
+
+Se quiser, você pode inserir suas próprias receitas. Adicionamos algumas como exemplos, mas você pode fazer, por exemplo, seu próprio git no GitHub. Há uma atividade falando um pouco sobre isso, mas você pode criar o seu e incluir sua URL para adicionar suas próprias receitas.
+
+Além disso, você pode desenvolver um projeto que use essa mesma lógica. Digamos que goste de um jogo em que os itens podem ser obtidos apenas com recursos específicos. Essa lógica também se aplica a esse tipo de projeto. Fica aí a ideia para você aplicar!
+
+Finalizamos o projeto, então nos vemos no último vídeo do curso!
+
+@@07
+Exibindo contadores
+
+Carla está trabalhando em um projeto Vue e criou um componente chamado Contador. Esse componente é um botão que possui um estado interno e que mostra na tela quantas vezes ele foi clicado.
+Em App.vue, há o seguinte código:
+
+<script lang="ts">
+import Contador from './components/Contador.vue';
+
+export default {
+  components: { Contador },
+  data() {
+    return {
+      contador: 'A' as 'A' | 'B' | null
+    }
+  }
+}
+</script>
+
+<template>
+  <div>
+    <KeepAlive>
+      <Contador v-if="contador === 'A'" />
+      <Contador v-else-if="contador === 'B'" />
+      <p v-else-if="contador === null">Nenhum contador sendo exibido.</p>
+    </KeepAlive>
+  </div>
+
+  <button @click="contador = 'A'">Mostrar Contador A</button>
+  <button @click="contador = 'B'">Mostrar Contador B</button>
+  <button @click="contador = null">Remover contador</button>
+</template>
+COPIAR CÓDIGO
+Com esse código, Carla consegue exibir dois contadores diferentes, cada um com seu próprio estado. Mesmo quando um contador é removido da tela, seu estado é preservado.
+
+Marque as alternativas que explicam o comportamento do código de Carla:
+
+Selecione 2 alternativas
+
+Não é necessário usar v-if / v-else-if nos componentes filhos do <KeepAlive>, pois ele consegue escolher qual dos componentes filhos exibir por vez.
+ 
+Alternativa correta
+O componente <KeepAlive> guarda no cache os componentes que estão dentro dele, e por isso seus estados são preservados.
+ 
+Os componentes filhos do <KeepAlive> não são totalmente eliminados, senão seu estado também seria. Em vez disso, eles são guardados no cache.
+Alternativa correta
+Se Carla quiser que apenas o estado dos contadores seja preservado, sem guardar o estado de outros componentes, a opção name do Contador deve ser definida e, em seguida, referenciada no atributo include do KeepAlive.
+ 
+Se o name do Contador for definido como 'Contador', por exemplo, Carla adicionaria include="Contador" no <KeepAlive>.
+Alternativa correta
+Se Contador tiver outros componentes filhos, esses filhos não terão o estado preservado. Isso porque o <KeepAlive> preserva o estado apenas dos componentes que estão diretamente dentro dele.
+
+@@08
+Faça como eu fiz
+
+Agora é a sua vez de colocar a mão na massa, caso ainda não tenha feito!
+Crie um estado para alternar a exibição das páginas do projeto. Além disso, os estados dos ingredientes selecionados deve ser preservado ao mudar de página. Por fim, implemente a lógica de busca de receitas na segunda página!
+
+Em ConteudoPrincipal, adicione o estado conteudo:
+data() {
+  return {
+    ingredientes: [] as string[],
+    conteudo: 'SelecionarIngredientes' as Pagina  /* Adicionado */
+  };
+},
+COPIAR CÓDIGO
+Crie o tipo Pagina no mesmo arquivo:
+
+type Pagina = 'SelecionarIngredientes' | 'MostrarReceitas';
+COPIAR CÓDIGO
+Em seguida, altere o template para o seguinte:
+
+<template>
+  <main class="conteudo-principal">
+    <SuaLista :ingredientes="ingredientes" />
+
+    <KeepAlive include="SelecionarIngredientes">
+      <SelecionarIngredientes v-if="conteudo === 'SelecionarIngredientes'"
+        @adicionar-ingrediente="adicionarIngrediente"
+        @remover-ingrediente="removerIngrediente"
+        @buscar-receitas="navegar('MostrarReceitas')"
+      />
+  
+      <MostrarReceitas v-else-if="conteudo === 'MostrarReceitas'"
+        :ingredientes="ingredientes"
+        @editar-receitas="navegar('SelecionarIngredientes')"
+      />
+    </KeepAlive>
+  </main>
+</template>
+COPIAR CÓDIGO
+Agora, em SelecionarIngrediente, adicione a opção name no componente:
+
+name: 'SelecionarIngredientes',
+COPIAR CÓDIGO
+No mesmo componente, adicione a emissão do evento 'buscarReceitas' no clique do botão “Buscar receitas!”:
+
+<BotaoPrincipal texto="Buscar receitas!" @click="$emit('buscarReceitas')" />
+COPIAR CÓDIGO
+Por fim, para implementar a lógica de busca de receitas, vá em MostrarReceitas (já implementada no Desafio). Adicione a prop ingredientes:
+
+props: {
+  ingredientes: { type: Array as PropType<string[]>, required: true }
+},
+COPIAR CÓDIGO
+E o método created agora ficará assim:
+
+async created() {
+  const receitas = await obterReceitas();
+
+  this.receitasEncontradas = receitas.filter((receita) => {
+    // Lógica que verifica se posso fazer receita:
+    // Todos os ingredientes de uma receita devem estar inclusos na minha lista de ingredientes
+    // Se sim, devemos retornar `true`
+
+    const possoFazerReceita = itensDeLista1EstaoEmLista2(receita.ingredientes, this.ingredientes);
+
+    return possoFazerReceita;
+  })
+},
+COPIAR CÓDIGO
+Por fim, implemente a função itensDeLista1EstaoEmLista2 em um novo arquivo src/operacoes/listas.ts:
+
+export function itensDeLista1EstaoEmLista2(lista1: unknown[], lista2: unknown[]) {
+  return lista1.every((itemLista1) => lista2.includes(itemLista1));
+}
+COPIAR CÓDIGO
+Com isso, o projeto foi finalizado!
+
+@@09
+Projeto final
+
+Você pode baixar ou acessar os arquivos no GitHub do projeto final.
+Aproveite para explorá-lo e revisar pontos importantes do curso.
+
+Bons estudos!
+
+https://github.com/alura-cursos/cookin-up/archive/refs/heads/aula-5.zip
+
+https://github.com/alura-cursos/cookin-up/tree/aula-5
+
+@@10
+O que aprendemos?
+
+Nessa aula, você aprendeu a:
+Controlar a exibição de componentes utilizando estado:
+Combinamos as diretivas v-if e v-else-if com o estado conteudo para alternar o que era exibido em tela;
+Utilizar o <KeepAlive> para cachear os componentes que saíam de tela:
+Os estados dos componentes filhos do <KeepAlive> são preservados, bem como os estados dos componentes mais filhos deles;
+É possível dizer quais componentes queremos cachear com o atributo include. Para isso, o componente a ser cacheado deve ter sua opção name definida (veja mais variações da sintaxe do include na documentação).
+
+@@11
+Recados finais
+
+Parabéns, você chegou ao fim do nosso curso. Tenho certeza que esse mergulho foi de muito aprendizado.
+Após os créditos finais do curso, você será redirecionado para uma tela na qual poderá deixar seu feedback e avaliação do curso. Sua opinião é muito importante para nós.
+
+Aproveite para conhecer a nossa comunidade no Discord da Alura e se conectar com outras pessoas com quem pode conversar, aprender e aumentar seu networking.
+
+Continue mergulhando com a gente.
+
+@@12
+Conclusão
+
+Parabéns por finalizar o curso de Vue!
+Vimos muitos conceitos, construímos um projeto incrível e espero que tenha agregado bastante ao seu conhecimento.
+
+Vamos recapitular nosso aprendizado? Começamos aprendendo sobre componentes. Inicialmente, construímos o componente do banner. Então, vimos as vantagens disso como, por exemplo, a melhor organização do nosso código.
+
+Em seguida, aprendemos sobre as diretivas do Vue, como o v-for, que ajuda a renderizar estruturas semelhantes de forma dinâmica. Isso centraliza a renderização em um único local. Também estudamos as diretivas v-if e v-else para exibir condicionalmente elementos na tela.
+
+Estudamos um conceito fundamental, que é o estado e a reatividade. Isso se encaixa perfeitamente com a parte de clicar nos ingredientes, alterando o visual. Com isso, temos uma interação, e a tela é renderizada novamente de acordo com essa interação.
+
+Após selecionar os ingredientes e clicar no botão para buscar receitas, há um breve delay para exibir as receitas, porque também estamos utilizando requisições HTTP. Nós estudamos essa parte em conjunto com os métodos de ciclo de vida do Vue. Descobrimos que é uma boa prática realizar essas requisições HTTP ao reatribuir o estado.
+
+A segunda página do projeto foi deixada como um desafio para que você pudesse praticar de forma autônoma. Com esses conhecimentos, você será capaz de construir outras aplicações web front-end com muito mais produtividade e até uma melhor experiência como pessoa desenvolvedora, graças aos benefícios que esses frameworks trazem.
+
+Não podemos esquecer que o Vue é um dos frameworks mais utilizados do mercado front-end, ao lado do React e do Angular!
+
+Em caso de dúvidas, fique à vontade para recorrer ao fórum, responderemos assim que possível. Além disso, há também o Discord da nossa comunidade, onde é possível interagir com outras pessoas estudantes e até com instrutores, além de fazer networking. Neste canal, muitos eventos são disponibilizados para que você possa participar!
+
+Caso queira, fique à vontade para compartilhar esse projeto no LinkedIn. Você pode me marcar, Antônio Valdo, e marcar a Alura. Ficaremos muito felizes em ver o seu progresso nos estudos e interagir com você!
+
+Até a próxima!
+
